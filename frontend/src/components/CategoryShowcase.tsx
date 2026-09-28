@@ -50,6 +50,11 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ language }) 
           label: language === "kz" ? "Құрал" : "Инструмент",
           className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
         };
+      default:
+        return {
+          label: tier,
+          className: "bg-brand-500/10 text-brand-300 border-brand-500/20",
+        };
     }
   };
 

@@ -11,8 +11,8 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-    const file = formData.get("file") as Blob | null;
-    if (!file) {
+    const file = formData.get("file");
+    if (!file || typeof file === "string") {
       return NextResponse.json({ error: "Файл не найден" }, { status: 400 });
     }
 

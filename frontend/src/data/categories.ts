@@ -2,7 +2,7 @@ export interface CategoryDefinition {
   id: string;
   nameRu: string;
   nameKz: string;
-  tier: "tool" | "equipment" | "heavy";
+  tier: string;
   iconName: string;
   startPrice: number;
   itemCount: number;

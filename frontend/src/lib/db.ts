@@ -19,7 +19,7 @@ export interface DynamicPromotion {
   subtitleKz: string;
   descriptionRu: string;
   descriptionKz: string;
-  applicableTiers: ("tool" | "equipment" | "heavy")[];
+  applicableTiers: string[];
   isActive: boolean;
   createdAt: string;
 }
