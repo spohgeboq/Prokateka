@@ -122,30 +122,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ language = "ru" }) => {
     const waNumber = settings.whatsappNumber || "77056317887";
 
     const lines = [
-      `ЗАКАЗ КОМПЛЕКТА В PROKATEKA`,
+      `ЗАПРОС СПИСКА ОБОРУДОВАНИЯ В PROKATEKA`,
       ``,
-      `Позиции в заказе (${items.length} шт.):`,
-      ...calculatedItems.map((ci, idx) => {
+      `Позиции в запросе (${items.length} шт.):`,
+      ...items.map((ci, idx) => {
         const title = language === "kz" ? ci.equipment.nameKz : ci.equipment.name;
-        const rateLabel = ci.isHeavy
-          ? `${ci.dailyRate.toLocaleString("ru-RU")} ₸/смена`
-          : `${ci.dailyRate.toLocaleString("ru-RU")} ₸/сут`;
-        return `${idx + 1}. ${title} — ${rateLabel}`;
+        return `${idx + 1}. ${title}`;
       }),
       ``,
-      `Срок аренды: ${days} ${language === "kz" ? "тәулік / ауысым" : "суток"}`,
+      `Желаемый срок аренды: ${days} ${language === "kz" ? "тәулік / ауысым" : "суток"}`,
       `Получение: ${
         deliveryType === "delivery"
           ? `${language === "kz" ? "Жеткізу" : "Доставка на объект"}: ${address || (language === "kz" ? "Нақтылануда" : "Адрес уточняется")}`
           : language === "kz" ? "Қоймадан алып кету (Өз бетімен)" : "Самовывоз со склада"
       }`,
-      ...(deliveryCost > 0 ? [`Стоимость доставки: ${deliveryCost.toLocaleString("ru-RU")} ₸`] : []),
-      ...(finalDiscount > 0 ? [`Выгода по акции: -${finalDiscount.toLocaleString("ru-RU")} ₸`] : []),
-      `Возвратный залог: ${
-        totalDeposit > 0 ? `${totalDeposit.toLocaleString("ru-RU")} ₸` : language === "kz" ? "Кепілақысыз" : "Без залога"
-      }`,
-      `ИТОГО К ОПЛАТЕ: ${totalToPay.toLocaleString("ru-RU")} ₸ (+ залог)`,
       ``,
+      `Просьба рассчитать стоимость аренды.`,
       `Клиент: ${customerName.trim() || (language === "kz" ? "Көрсетілмеген" : "Не указано")}`,
       `Телефон: ${customerPhone.trim() || (language === "kz" ? "Көрсетілмеген" : "Не указан")}`,
     ];
@@ -269,11 +261,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ language = "ru" }) => {
                           {language === "kz" ? equipment.nameKz : equipment.name}
                         </h4>
                         <div className="flex items-center justify-between mt-1 text-xs">
-                          <span className="text-slate-300 font-semibold">
-                            {dailyRate.toLocaleString("ru-RU")} ₸
-                            <span className="text-[10px] text-slate-500 font-normal ml-0.5">
-                              {equipment.tier === "heavy" ? "/смена" : "/сут"}
-                            </span>
+                          <span className="text-slate-300 text-[10px]">
+                            {language === "kz" ? "Бағасын WhatsApp-та біліңіз" : "Цена по запросу"}
                           </span>
                           <button
                             type="button"
@@ -389,59 +378,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ language = "ru" }) => {
                 </div>
               </div>
 
-              {/* Price Calculation Summary */}
-              <div className="p-3.5 rounded-xl bg-navy-950 border border-white/10 space-y-2 text-xs">
-                <div className="flex justify-between text-slate-400">
-                  <span>{language === "kz" ? "Жабдықтардың бастапқы бағасы:" : "Стоимость аренды комплекта:"}</span>
-                  <span className="text-white font-semibold">
-                    {rawEquipmentSum.toLocaleString("ru-RU")} ₸
+              {/* Price Informational Block */}
+              <div className="p-3.5 rounded-xl bg-navy-950 border border-white/10 text-xs">
+                <div className="flex items-start gap-2 text-brand-400 font-medium">
+                  <Sparkles className="w-4 h-4 flex-shrink-0" />
+                  <span>
+                    {language === "kz" 
+                      ? "Таңдалған жабдықтардың нақты бағасын және жеткізу құнын WhatsApp арқылы менеджер есептеп береді." 
+                      : "Точная стоимость аренды и доставки для выбранного списка будет рассчитана менеджером в WhatsApp."}
                   </span>
-                </div>
-
-                {finalDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-400 font-semibold">
-                    <span className="flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>{language === "kz" ? "Акция / Кешенді жеңілдік:" : "Выгода / Скидка на комплект:"}</span>
-                    </span>
-                    <span>-{finalDiscount.toLocaleString("ru-RU")} ₸</span>
-                  </div>
-                )}
-
-                {deliveryCost > 0 && (
-                  <div className="flex justify-between text-slate-400">
-                    <span>{language === "kz" ? "Жеткізу құны:" : "Доставка:"}</span>
-                    <span className="text-white font-semibold">
-                      {deliveryCost.toLocaleString("ru-RU")} ₸
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex justify-between text-slate-400">
-                  <span>{language === "kz" ? "Қайтарылатын кепілақы:" : "Возвратный залог:"}</span>
-                  <span className="text-slate-300 font-medium">
-                    {totalDeposit > 0
-                      ? `${totalDeposit.toLocaleString("ru-RU")} ₸`
-                      : language === "kz"
-                      ? "Кепілақысыз"
-                      : "Без залога"}
-                  </span>
-                </div>
-
-                <div className="pt-2 border-t border-white/10 flex items-baseline justify-between">
-                  <div>
-                    <div className="text-[11px] text-slate-400 font-medium">
-                      {language === "kz" ? "Барлығы төленуі тиіс:" : "ИТОГО К ОПЛАТЕ:"}
-                    </div>
-                    <div className="text-xl font-black text-white">
-                      {totalToPay.toLocaleString("ru-RU")} ₸
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/20 px-2 py-0.5 rounded">
-                      WhatsApp-менеджер онлайн
-                    </span>
-                  </div>
                 </div>
               </div>
             </>

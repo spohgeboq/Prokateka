@@ -318,7 +318,7 @@ export const Header: React.FC<HeaderProps> = ({
                           {language === "kz" ? c.nameKz : c.nameRu}
                         </div>
                         <div className="text-[11px] text-slate-400 mt-0.5 truncate">
-                          {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы" : "от"} {c.startPrice.toLocaleString("ru-RU")} ₸
+                          {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы WhatsApp-та" : "цена по запросу"}
                         </div>
                       </div>
                     </Link>
@@ -348,7 +348,7 @@ export const Header: React.FC<HeaderProps> = ({
                           {language === "kz" ? c.nameKz : c.nameRu}
                         </div>
                         <div className="text-[11px] text-slate-400 mt-0.5 truncate">
-                          {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы" : "от"} {c.startPrice.toLocaleString("ru-RU")} ₸
+                          {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы WhatsApp-та" : "цена по запросу"}
                         </div>
                       </div>
                     </Link>
@@ -378,7 +378,7 @@ export const Header: React.FC<HeaderProps> = ({
                           {language === "kz" ? c.nameKz : c.nameRu}
                         </div>
                         <div className="text-[11px] text-slate-400 mt-0.5 truncate">
-                          {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы" : "от"} {c.startPrice.toLocaleString("ru-RU")} ₸
+                          {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы WhatsApp-та" : "цена по запросу"}
                         </div>
                       </div>
                     </Link>

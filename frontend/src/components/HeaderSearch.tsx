@@ -263,10 +263,7 @@ export const HeaderSearch: React.FC<HeaderSearchProps> = ({
                   <div className="space-y-1">
                     {matchingEquipment.map((item) => {
                       const title = language === "kz" ? item.nameKz : item.name;
-                      const price =
-                        item.tier === "heavy" && item.priceShift
-                          ? `${item.priceShift.toLocaleString("ru-RU")} ₸ / смена`
-                          : `${item.priceDay.toLocaleString("ru-RU")} ₸ / сутки`;
+                      const price = language === "kz" ? "Бағасын WhatsApp-та біліңіз" : "Цена по запросу в WhatsApp";
 
                       return (
                         <Link

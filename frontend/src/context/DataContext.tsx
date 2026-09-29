@@ -30,6 +30,7 @@ const defaultSettings: SiteSettings = {
   companyName: "ИП «Прокатека»",
   companyBin: "970319350517",
   headName: "Рақымжан Наурыз Болатұлы",
+  youtubeVideoUrl: "https://www.youtube.com/embed/yP2RjVf02g4",
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);

@@ -285,36 +285,10 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                   <div className="pt-3 border-t border-white/10">
                     <div className="flex items-baseline justify-between mb-2.5">
                       <div>
-                        <div
-                          className={`text-lg sm:text-xl font-extrabold ${
-                            item.inStock ? "text-white" : "text-slate-300"
-                          }`}
-                        >
-                          {(item.tier === "heavy" && item.priceShift
-                            ? item.priceShift
-                            : item.priceDay
-                          ).toLocaleString("ru-RU")}{" "}
-                          ₸
-                        </div>
-                        <div className="text-[11px] text-slate-400">
-                          {item.tier === "heavy" ? t.catalog.perShift : t.catalog.perDay}
+                        <div className="text-base font-bold text-white">
+                          {language === "kz" ? "Бағасын WhatsApp-та біліңіз" : "Цена по запросу в WhatsApp"}
                         </div>
                       </div>
-
-                      {item.deposit > 0 ? (
-                        <div className="text-right">
-                          <div className="text-[11px] text-slate-400">{t.catalog.deposit}:</div>
-                          <div className="text-xs font-semibold text-slate-200">
-                            {item.deposit.toLocaleString("ru-RU")} ₸
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-right">
-                          <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium">
-                            {language === "kz" ? "Кепілақысыз" : "Без залога"}
-                          </span>
-                        </div>
-                      )}
                     </div>
 
                     <div className="grid grid-cols-12 gap-1.5">

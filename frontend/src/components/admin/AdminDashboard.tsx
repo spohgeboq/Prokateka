@@ -68,6 +68,7 @@ export function AdminDashboard() {
     companyName: "ИП «Прокатека»",
     companyBin: "970319350517",
     headName: "Рақымжан Наурыз Болатұлы",
+    youtubeVideoUrl: "https://www.youtube.com/embed/yP2RjVf02g4",
   });
   const [adminEmail, setAdminEmail] = useState("admin@prokateka.kz");
 
@@ -676,7 +677,7 @@ export function AdminDashboard() {
                             {item.name}
                           </span>
                           <span className="text-[11px] text-slate-400 block">
-                            {item.priceDay.toLocaleString("ru-RU")} ₸ / сут.
+                            {item.category}
                           </span>
                         </div>
                       </div>
@@ -728,7 +729,6 @@ export function AdminDashboard() {
                           <th className="pb-3">Клиент</th>
                           <th className="pb-3">Техника</th>
                           <th className="pb-3">Срок</th>
-                          <th className="pb-3">Сумма</th>
                           <th className="pb-3">Статус</th>
                         </tr>
                       </thead>
@@ -752,9 +752,6 @@ export function AdminDashboard() {
                             <td className="py-3 text-slate-300">{l.equipmentName}</td>
                             <td className="py-3 text-slate-400">
                               {l.days} {l.durationUnit}
-                            </td>
-                            <td className="py-3 font-bold text-brand-400">
-                              {l.totalPrice.toLocaleString("ru-RU")} ₸
                             </td>
                             <td className="py-3">
                               <span
@@ -858,8 +855,6 @@ export function AdminDashboard() {
                         <th className="py-3 px-4">Фото</th>
                         <th className="py-3 px-4">Наименование</th>
                         <th className="py-3 px-4">Категория / Раздел</th>
-                        <th className="py-3 px-4">Тариф</th>
-                        <th className="py-3 px-4">Залог</th>
                         <th className="py-3 px-4 text-center">Наличие (Тумблер)</th>
                         <th className="py-3 px-4 text-right">Действия</th>
                       </tr>
@@ -895,21 +890,6 @@ export function AdminDashboard() {
                             <span className="text-[10px] text-brand-400 uppercase font-bold">
                               {item.tier}
                             </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="font-black text-white text-sm">
-                              {(item.tier === "heavy" && item.priceShift
-                                ? item.priceShift
-                                : item.priceDay
-                              ).toLocaleString("ru-RU")}{" "}
-                              ₸
-                            </span>
-                            <span className="text-[10px] text-slate-400 block">
-                              {item.tier === "heavy" ? "/ смена" : "/ сутки"}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-slate-300 font-semibold">
-                            {item.deposit > 0 ? `${item.deposit.toLocaleString("ru-RU")} ₸` : "Без залога"}
                           </td>
                           <td className="py-3 px-4 text-center">
                             <button
@@ -1298,7 +1278,6 @@ export function AdminDashboard() {
                         <th className="py-3 px-4">Техника</th>
                         <th className="py-3 px-4">Срок</th>
                         <th className="py-3 px-4">Доставка</th>
-                        <th className="py-3 px-4">Сумма</th>
                         <th className="py-3 px-4">Статус</th>
                         <th className="py-3 px-4 text-right">WhatsApp</th>
                       </tr>
@@ -1330,9 +1309,6 @@ export function AdminDashboard() {
                             {lead.deliveryType === "delivery"
                               ? `Доставка: ${lead.address || "адрес уточняется"}`
                               : "Самовывоз"}
-                          </td>
-                          <td className="py-3 px-4 font-black text-brand-400 text-sm">
-                            {lead.totalPrice.toLocaleString("ru-RU")} ₸
                           </td>
                           <td className="py-3 px-4">
                             <select
@@ -1428,6 +1404,22 @@ export function AdminDashboard() {
                       className="w-full px-4 py-2.5 rounded-xl bg-navy-950 border border-white/10 text-white text-sm focus:outline-none focus:border-brand-500"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    Видео о компании (YouTube Ссылка)
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.youtubeVideoUrl || ""}
+                    onChange={(e) => setSettings({ ...settings, youtubeVideoUrl: e.target.value })}
+                    placeholder="https://www.youtube.com/embed/..."
+                    className="w-full px-4 py-2.5 rounded-xl bg-navy-950 border border-white/10 text-white text-sm focus:outline-none focus:border-brand-500"
+                  />
+                  <span className="text-[11px] text-slate-400 mt-1 block">
+                    Вставьте ссылку на видео в формате embed (например: https://www.youtube.com/embed/yP2RjVf02g4)
+                  </span>
                 </div>
 
                 <div className="pt-4 border-t border-white/10">
@@ -1594,43 +1586,8 @@ export function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Цена за сутки (₸)</label>
-                  <input
-                    type="number"
-                    value={editingItem.priceDay}
-                    onChange={(e) =>
-                      setEditingItem({ ...editingItem, priceDay: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-xs text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Цена за смену (для спецтехники)</label>
-                  <input
-                    type="number"
-                    value={editingItem.priceShift || ""}
-                    onChange={(e) =>
-                      setEditingItem({
-                        ...editingItem,
-                        priceShift: e.target.value ? Number(e.target.value) : undefined,
-                      })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-xs text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Залог (0 если без залога)</label>
-                  <input
-                    type="number"
-                    value={editingItem.deposit}
-                    onChange={(e) =>
-                      setEditingItem({ ...editingItem, deposit: Number(e.target.value) })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-xs text-white"
-                  />
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Empty grid replacing prices */}
               </div>
 
               <div className="pt-2">

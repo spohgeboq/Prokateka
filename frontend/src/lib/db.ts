@@ -61,6 +61,7 @@ export interface SiteSettings {
   companyName: string;
   companyBin: string;
   headName: string;
+  youtubeVideoUrl: string;
 }
 
 export interface AdminUser {
@@ -149,6 +150,7 @@ function getInitialData(): DatabaseSchema {
     companyName: "ИП «Прокатека»",
     companyBin: "970319350517",
     headName: "Рақымжан Наурыз Болатұлы",
+    youtubeVideoUrl: "https://www.youtube.com/embed/yP2RjVf02g4",
   };
 
   const defaultAdmin: AdminUser = {

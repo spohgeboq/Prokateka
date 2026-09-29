@@ -202,12 +202,11 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ language }) 
                 <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
                   <div>
                     <span className="text-slate-400 text-[11px] block">
-                      {language === "kz" ? "Бағасы" : "Аренда от"}
+                      {language === "kz" ? "Бағасы" : "Цена"}
                     </span>
-                    <span className="text-white font-extrabold text-sm">
-                      {category.startPrice.toLocaleString("ru-RU")} ₸
+                    <span className="text-white font-bold text-xs">
+                      {language === "kz" ? "WhatsApp-та біліңіз" : "По запросу в WhatsApp"}
                     </span>
-                    <span className="text-slate-400 text-[11px] ml-1">/{unit}</span>
                   </div>
 
                   <div className="flex items-center gap-1.5 text-brand-400 font-semibold group-hover:translate-x-0.5 transition-transform">

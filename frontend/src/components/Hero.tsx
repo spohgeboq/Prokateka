@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Language, translations } from "@/data/translations";
@@ -21,6 +21,44 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ language }) => {
   const t = translations[language];
+  const [youtubeUrl, setYoutubeUrl] = useState("https://www.youtube.com/embed/yP2RjVf02g4");
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings?.youtubeVideoUrl) {
+          setYoutubeUrl(data.settings.youtubeVideoUrl);
+        }
+      })
+      .catch((err) => console.error("Failed to load settings:", err));
+  }, []);
+
+  const getEmbedUrl = (url: string) => {
+    try {
+      if (!url) return "";
+      if (url.includes("youtube.com/embed/")) return url;
+      
+      let videoId = "";
+      if (url.includes("youtu.be/")) {
+        videoId = url.split("youtu.be/")[1]?.split("?")[0];
+      } else if (url.includes("youtube.com/watch")) {
+        const urlObj = new URL(url);
+        videoId = urlObj.searchParams.get("v") || "";
+      } else if (url.includes("youtube.com/shorts/")) {
+        videoId = url.split("youtube.com/shorts/")[1]?.split("?")[0];
+      }
+      
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+      return url;
+    } catch {
+      return url;
+    }
+  };
+
+  const finalYoutubeUrl = getEmbedUrl(youtubeUrl);
 
   const handleWhatsappClick = (customText?: string) => {
     const text = encodeURIComponent(
@@ -67,10 +105,11 @@ export const Hero: React.FC<HeroProps> = ({ language }) => {
               {t.hero.titlePart2}
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed mb-7">
-              {t.hero.subtitle}
-            </p>
+            {t.hero.subtitle && (
+              <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed mb-7">
+                {t.hero.subtitle}
+              </p>
+            )}
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full sm:w-auto mb-8">
@@ -109,62 +148,26 @@ export const Hero: React.FC<HeroProps> = ({ language }) => {
             </div>
           </div>
 
-          {/* Right Column: Fleet Scale & Real Construction Atmosphere */}
+          {/* Right Column: Video & About Us */}
           <div className="lg:col-span-6 relative">
             <div className="relative rounded-3xl overflow-hidden border border-white/15 bg-navy-900/90 shadow-2xl p-5 sm:p-6 backdrop-blur-md transition-all">
-              {/* Visual Image Container */}
-              <div className="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden mb-4 border border-white/10">
-                <Image
-                  src="/images/excavator.jpg"
-                  alt="Строительная площадка и парк техники PROkateka в Астане"
-                  fill
-                  priority
-                  className="object-cover hover:scale-105 transition-transform duration-700"
+              {/* Video Container */}
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4 border border-white/10 bg-black shadow-inner">
+                <iframe
+                  src={finalYoutubeUrl.includes("?") ? `${finalYoutubeUrl}&autoplay=0&rel=0` : `${finalYoutubeUrl}?autoplay=0&rel=0`}
+                  title="PROkateka - Аренда строительного оборудования"
+                  className="absolute inset-0 w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
                 />
-                {/* Cinematic gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/40 to-transparent opacity-90" />
-
-                {/* Floating Glass Badges */}
-                <div className="absolute top-3.5 left-3.5 bg-navy-950/85 backdrop-blur-md border border-white/15 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-lg">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>
-                    {language === "kz"
-                      ? "180+ бірлік қоймада • Бектұров 4Г"
-                      : "180+ единиц в парке • ул. Бектурова 4Г"}
-                  </span>
-                </div>
-
-                <a
-                  href="https://2gis.kz/astana/geo/70000001065108547"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="absolute top-3.5 right-3.5 bg-emerald-600/90 hover:bg-emerald-500 backdrop-blur-md border border-emerald-400/40 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-lg transition-colors"
-                >
-                  <span>2GIS 4.9</span>
-                  <Star className="w-3 h-3 fill-white text-white" />
-                  <span className="text-emerald-100 text-[10px] font-normal">(258+)</span>
-                </a>
-
-                {/* Bottom Text Overlay on Photo */}
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="inline-flex items-center gap-1 text-[11px] text-brand-400 font-extrabold uppercase tracking-wider mb-1">
-                    <Building2 className="w-3.5 h-3.5" />
-                    <span>
-                      {language === "kz" ? "Астанадағы техника паркі" : "Парк оборудования в Астане"}
-                    </span>
-                  </div>
-                  <div className="text-white font-extrabold text-base sm:text-xl leading-tight mb-1.5">
-                    {language === "kz"
-                      ? "Кез келген ауқымдағы құрылысқа арналған техника"
-                      : "Оборудование для объектов любого масштаба"}
-                  </div>
-                  <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                    {language === "kz"
-                      ? "Үйдегі жөндеуден бастап көпқабатты құрылысқа дейін. Қоймада әрқашан балама модельдер бар, қажет болса 2 сағатта ауыстыру кепілдігі."
-                      : "От частного ремонта до монолитного строительства. Всегда есть исправные аналоги в наличии, а при необходимости — замена за 2 часа."}
-                  </p>
-                </div>
               </div>
+
+              {/* Text Overlay on Photo -> Text below video */}
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed text-justify mb-5">
+                {language === "kz"
+                  ? "Біз PROkateka прокат желісіміз - құрылыс нысандарын қауіпсіз, тиімді және жоғары өнімділікпен қамтамасыз етуге бағытталған толық қызмет көрсететін жабдықтарды жалға беру бойынша жетекші компаниямыз. Біздің компания технологиялық инновациялар мен кеңейтілген өнім ұсыныстары арқылы тұтынушылардың жобаларын қолдауды жалғастыруда."
+                  : "Мы сеть прокатов PROkateka - ведущая компания по аренде оборудования с полным спектром услуг, предоставляющая клиентам оборудование, услуги и решения, необходимые для достижения оптимальной производительности безопасно, эффективно и результативно. Наша компания продолжает развиваться за счет технологических инноваций и расширенного предложения для поддержки проектов клиентов."}
+              </p>
 
               {/* 3 Metric Pills Across the Bottom */}
               <div className="grid grid-cols-3 gap-2.5 mb-4">

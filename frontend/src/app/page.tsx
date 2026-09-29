@@ -13,18 +13,28 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { BranchesSection } from "@/components/BranchesSection";
 import { PromoBanner } from "@/components/PromoBanner";
 import { Footer } from "@/components/Footer";
-import { RentalCalculatorModal } from "@/components/RentalCalculatorModal";
-
 import { useCart } from "@/context/CartContext";
 
 export default function HomePage() {
   const [language, setLanguage] = useState<Language>("ru");
   const [searchQuery, setSearchQuery] = useState<string>("" );
-  const [selectedItem, setSelectedItem] = useState<EquipmentItem | null>(null);
   const { openCart, cartCount } = useCart();
 
   const handleSelectEquipment = (item: EquipmentItem) => {
-    setSelectedItem(item);
+    const itemName = language === "kz" ? item.nameKz : item.name;
+    const lines = [
+      `ЗАПРОС В СЕРВИСЕ PROKATEKA`,
+      ``,
+      `Техника: ${itemName}`,
+      ``,
+      language === "kz" 
+        ? `Сәлеметсіз бе! Мені осы құрал қызықтырады, бағасы қанша болады және жалға алу шарттары қандай?` 
+        : `Здравствуйте! Интересует аренда этой техники. Подскажите цену и условия.`,
+    ];
+    // use a fallback waNumber if settings is not imported
+    const waNumber = "77056317887"; 
+    const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
+    window.open(url, "_blank");
   };
 
   return (
@@ -73,15 +83,6 @@ export default function HomePage() {
 
       {/* 8. Footer */}
       <Footer language={language} />
-
-      {/* 9. Interactive Rental & WhatsApp Calculator Modal */}
-      {selectedItem && (
-        <RentalCalculatorModal
-          item={selectedItem}
-          language={language}
-          onClose={() => setSelectedItem(null)}
-        />
-      )}
     </div>
   );
 }

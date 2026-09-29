@@ -21,7 +21,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
   return (
     <div
-      className={`inline-flex flex-col cursor-pointer select-none group ${className}`}
+      className={`inline-flex flex-col items-center justify-center cursor-pointer select-none group ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -75,9 +75,6 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
               {/* Center hole cutout (Deep Navy) */}
               <circle cx="50" cy="50" r="23" fill="#0F172A" />
-
-              {/* Center axle core */}
-              <circle cx="50" cy="50" r="10" fill="#F59E0B" />
             </svg>
           </div>
 

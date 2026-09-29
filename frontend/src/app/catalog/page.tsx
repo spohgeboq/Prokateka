@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { RentalCalculatorModal } from "@/components/RentalCalculatorModal";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { CATALOG_ITEMS, EquipmentItem, EquipmentTier, PowerType } from "@/data/catalog";
 import { CATEGORIES, CategoryDefinition } from "@/data/categories";
@@ -69,8 +68,7 @@ function CatalogMain() {
     }
   }, [searchParams]);
 
-  // Modal calculator
-  const [selectedItem, setSelectedItem] = useState<EquipmentItem | null>(null);
+  // Modal calculator removed
 
   const t = translations[language];
 
@@ -99,6 +97,22 @@ function CatalogMain() {
     params.delete("search");
     const newQuery = params.toString();
     router.replace(`/catalog${newQuery ? `?${newQuery}` : ""}`, { scroll: false });
+  };
+
+  const handleDirectWhatsapp = (item: EquipmentItem) => {
+    const itemName = language === "kz" ? item.nameKz : item.name;
+    const lines = [
+      `ЗАПРОС В СЕРВИСЕ PROKATEKA`,
+      ``,
+      `Техника: ${itemName}`,
+      ``,
+      language === "kz" 
+        ? `Сәлеметсіз бе! Мені осы құрал қызықтырады, бағасы қанша болады және жалға алу шарттары қандай?` 
+        : `Здравствуйте! Интересует аренда этой техники. Подскажите цену и условия.`,
+    ];
+    const waNumber = settings?.whatsappNumber || "77056317887"; 
+    const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
+    window.open(url, "_blank");
   };
 
   // Categories will be grouped dynamically by tier during render
@@ -651,35 +665,9 @@ function CatalogMain() {
                       <div className="pt-3 border-t border-white/10">
                         <div className="flex items-baseline justify-between mb-3">
                           <div>
-                            <div
-                              className={`text-lg font-extrabold ${
-                                item.inStock ? "text-white" : "text-slate-300"
-                              }`}
-                            >
-                              {(item.tier === "heavy" && item.priceShift
-                                ? item.priceShift
-                                : item.priceDay
-                              ).toLocaleString("ru-RU")}{" "}
-                              ₸
+                            <div className="text-base font-bold text-white">
+                              {language === "kz" ? "Бағасын WhatsApp-та біліңіз" : "Цена по запросу в WhatsApp"}
                             </div>
-                            <div className="text-[11px] text-slate-400">
-                              {item.tier === "heavy" ? t.catalog.perShift : t.catalog.perDay}
-                            </div>
-                          </div>
-
-                          <div className="text-right">
-                            {item.deposit > 0 ? (
-                              <>
-                                <div className="text-[11px] text-slate-400">{t.catalog.deposit}:</div>
-                                <div className="text-xs font-semibold text-slate-200">
-                                  {item.deposit.toLocaleString("ru-RU")} ₸
-                                </div>
-                              </>
-                            ) : (
-                              <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium">
-                                {language === "kz" ? "Кепілақысыз" : "Без залога"}
-                              </span>
-                            )}
                           </div>
                         </div>
 
@@ -711,10 +699,10 @@ function CatalogMain() {
                           {item.inStock ? (
                             <button
                               type="button"
-                              onClick={() => setSelectedItem(item)}
+                              onClick={() => handleDirectWhatsapp(item)}
                               className="col-span-6 flex items-center justify-center gap-1 bg-brand-500 hover:bg-brand-600 text-navy-950 font-bold text-xs py-2 rounded-xl transition-all shadow-md shadow-brand-500/10 active:scale-95"
                             >
-                              <span>{t.catalog.btnRent}</span>
+                              <span>{language === "kz" ? "WhatsApp арқылы сұрау" : "Запросить в WhatsApp"}</span>
                               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                             </button>
                           ) : (
@@ -745,13 +733,6 @@ function CatalogMain() {
 
       <Footer language={language} />
 
-      {selectedItem && (
-        <RentalCalculatorModal
-          item={selectedItem}
-          language={language}
-          onClose={() => setSelectedItem(null)}
-        />
-      )}
     </div>
   );
 }
