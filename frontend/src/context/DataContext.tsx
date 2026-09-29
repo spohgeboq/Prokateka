@@ -46,13 +46,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshData = useCallback(async () => {
     try {
+      const now = Date.now();
       const [eqRes, prRes, catRes, brRes, setRes, tierRes] = await Promise.all([
-        fetch("/api/equipment", { cache: "no-store" }),
-        fetch("/api/promotions", { cache: "no-store" }),
-        fetch("/api/categories", { cache: "no-store" }),
-        fetch("/api/branches", { cache: "no-store" }),
-        fetch("/api/settings", { cache: "no-store" }),
-        fetch("/api/tiers", { cache: "no-store" }),
+        fetch(`/api/equipment?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/promotions?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/categories?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/branches?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/settings?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/tiers?t=${now}`, { cache: "no-store" }),
       ]);
 
       if (eqRes.ok) {

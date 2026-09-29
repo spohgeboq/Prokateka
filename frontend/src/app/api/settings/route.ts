@@ -8,7 +8,10 @@ export const dynamic = "force-dynamic";
 // GET /api/settings
 export async function GET() {
   const db = readDb();
-  return NextResponse.json({ success: true, settings: db.settings });
+  return NextResponse.json(
+    { success: true, settings: db.settings },
+    { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+  );
 }
 
 // PUT /api/settings (Admin only)

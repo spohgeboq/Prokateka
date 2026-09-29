@@ -27,7 +27,10 @@ export async function GET(req: Request) {
       items = items.filter((item) => item.inStock);
     }
 
-    return NextResponse.json({ success: true, count: items.length, items });
+    return NextResponse.json(
+      { success: true, count: items.length, items },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+    );
   } catch (err) {
     return NextResponse.json({ error: "Ошибка при получении каталога" }, { status: 500 });
   }

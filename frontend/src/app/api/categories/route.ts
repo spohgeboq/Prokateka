@@ -9,7 +9,10 @@ export const dynamic = "force-dynamic";
 // GET /api/categories
 export async function GET() {
   const db = readDb();
-  return NextResponse.json({ success: true, categories: db.categories });
+  return NextResponse.json(
+    { success: true, categories: db.categories },
+    { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+  );
 }
 
 // POST /api/categories (Admin only)

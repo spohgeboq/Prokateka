@@ -17,7 +17,10 @@ export async function GET(req: Request) {
       promos = promos.filter((p) => p.isActive);
     }
 
-    return NextResponse.json({ success: true, count: promos.length, promotions: promos });
+    return NextResponse.json(
+      { success: true, count: promos.length, promotions: promos },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+    );
   } catch (err) {
     return NextResponse.json({ error: "Ошибка при получении акций" }, { status: 500 });
   }

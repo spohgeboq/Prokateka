@@ -8,7 +8,10 @@ export const dynamic = "force-dynamic";
 // GET /api/branches
 export async function GET() {
   const db = readDb();
-  return NextResponse.json({ success: true, branches: db.branches });
+  return NextResponse.json(
+    { success: true, branches: db.branches },
+    { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+  );
 }
 
 // POST /api/branches (Admin only)

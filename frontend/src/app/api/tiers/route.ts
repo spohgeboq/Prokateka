@@ -16,7 +16,9 @@ function saveDbData(data: any) {
 export async function GET() {
   try {
     const db = getDbData();
-    return NextResponse.json(db.tiers || []);
+    return NextResponse.json(db.tiers || [], {
+      headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" },
+    });
   } catch (error) {
     return NextResponse.json({ error: "Failed to read tiers" }, { status: 500 });
   }

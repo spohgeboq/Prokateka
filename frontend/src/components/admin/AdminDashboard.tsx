@@ -105,15 +105,16 @@ export function AdminDashboard() {
   const fetchAllData = async () => {
     setLoading(true);
     try {
+      const now = Date.now();
       const [eqRes, prRes, catRes, brRes, setRes, ldRes, meRes, tierRes] = await Promise.all([
-        fetch("/api/equipment", { cache: "no-store" }),
-        fetch("/api/promotions", { cache: "no-store" }),
-        fetch("/api/categories", { cache: "no-store" }),
-        fetch("/api/branches", { cache: "no-store" }),
-        fetch("/api/settings", { cache: "no-store" }),
-        fetch("/api/leads", { cache: "no-store" }),
-        fetch("/api/admin/auth/me", { cache: "no-store" }),
-        fetch("/api/tiers", { cache: "no-store" }),
+        fetch(`/api/equipment?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/promotions?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/categories?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/branches?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/settings?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/leads?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/admin/auth/me?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/tiers?t=${now}`, { cache: "no-store" }),
       ]);
 
       if (eqRes.ok) setEquipment((await eqRes.json()).items || []);
@@ -327,6 +328,7 @@ export function AdminDashboard() {
       });
 
       if (res.ok) {
+        await fetchAllData();
         showToast("Настройки сервиса успешно обновлены!");
         setAdminPasswordInput("");
       }
