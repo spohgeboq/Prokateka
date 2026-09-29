@@ -79,13 +79,15 @@ export interface DatabaseSchema {
   admin: AdminUser;
 }
 
-function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-}
+let memoryDb: DatabaseSchema | null = null;
 
-const DB_FILE = path.join(DATA_DIR, "db.json");
+function getDbFilePath(): string {
+  const standardPath = path.join(process.cwd(), "data", "db.json");
+  if (process.env.VERCEL) {
+    return path.join("/tmp", "db.json");
+  }
+  return standardPath;
+}
 
 // Default initial seed
 function getInitialData(): DatabaseSchema {
@@ -170,22 +172,60 @@ function getInitialData(): DatabaseSchema {
 }
 
 export function readDb(): DatabaseSchema {
-  ensureDataDir();
-  if (!fs.existsSync(DB_FILE)) {
+  const dbFile = getDbFilePath();
+  const dir = path.dirname(dbFile);
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch {}
+
+  if (!fs.existsSync(dbFile)) {
+    const standardPath = path.join(process.cwd(), "data", "db.json");
+    if (dbFile !== standardPath && fs.existsSync(standardPath)) {
+      try {
+        const seedRaw = fs.readFileSync(standardPath, "utf-8");
+        fs.writeFileSync(dbFile, seedRaw, "utf-8");
+        const parsed = JSON.parse(seedRaw);
+        memoryDb = parsed;
+        return parsed;
+      } catch {}
+    }
     const initial = getInitialData();
-    fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2), "utf-8");
+    try {
+      fs.writeFileSync(dbFile, JSON.stringify(initial, null, 2), "utf-8");
+    } catch {
+      memoryDb = initial;
+    }
     return initial;
   }
+
   try {
-    const raw = fs.readFileSync(DB_FILE, "utf-8");
-    return JSON.parse(raw);
+    const raw = fs.readFileSync(dbFile, "utf-8");
+    const parsed = JSON.parse(raw);
+    memoryDb = parsed;
+    return parsed;
   } catch (err) {
+    if (memoryDb) return memoryDb;
     console.error("Error reading db.json, returning initial seed:", err);
     return getInitialData();
   }
 }
 
 export function writeDb(data: DatabaseSchema): void {
-  ensureDataDir();
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf-8");
+  memoryDb = data;
+  const dbFile = getDbFilePath();
+  const dir = path.dirname(dbFile);
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(dbFile, JSON.stringify(data, null, 2), "utf-8");
+  } catch (err) {
+    console.warn("Could not write to primary disk, saved in memory:", err);
+    try {
+      const tmpFile = path.join("/tmp", "db.json");
+      fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), "utf-8");
+    } catch {}
+  }
 }
