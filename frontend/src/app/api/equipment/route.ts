@@ -42,8 +42,8 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    if (!body.name || !body.tier || body.priceDay === undefined) {
-      return NextResponse.json({ error: "Укажите название, категорию и цену" }, { status: 400 });
+    if (!body.name || !body.tier) {
+      return NextResponse.json({ error: "Укажите название и категорию техники" }, { status: 400 });
     }
 
     const db = readDb();

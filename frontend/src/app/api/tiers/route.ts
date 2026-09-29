@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { readDb, writeDb } from "@/lib/db";
+import { isAuthenticatedAdmin } from "@/lib/auth";
 
-const DB_PATH = path.join(process.cwd(), "data", "db.json");
+export const dynamic = "force-dynamic";
 
-function getDbData() {
-  const fileData = fs.readFileSync(DB_PATH, "utf-8");
-  return JSON.parse(fileData);
+function getDbData(): any {
+  return readDb();
 }
 
 function saveDbData(data: any) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+  writeDb(data);
 }
 
 // GET all tiers
@@ -26,6 +25,9 @@ export async function GET() {
 // POST new tier
 export async function POST(req: Request) {
   try {
+    const isAuth = await isAuthenticatedAdmin();
+    if (!isAuth) return NextResponse.json({ error: "Доступ запрещен" }, { status: 401 });
+
     const db = getDbData();
     const newTier = await req.json();
 
@@ -49,6 +51,9 @@ export async function POST(req: Request) {
 // PUT (update) existing tier
 export async function PUT(req: Request) {
   try {
+    const isAuth = await isAuthenticatedAdmin();
+    if (!isAuth) return NextResponse.json({ error: "Доступ запрещен" }, { status: 401 });
+
     const db = getDbData();
     const updatedTier = await req.json();
 
@@ -66,6 +71,9 @@ export async function PUT(req: Request) {
 // DELETE a tier
 export async function DELETE(req: Request) {
   try {
+    const isAuth = await isAuthenticatedAdmin();
+    if (!isAuth) return NextResponse.json({ error: "Доступ запрещен" }, { status: 401 });
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
