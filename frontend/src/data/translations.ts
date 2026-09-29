@@ -225,7 +225,7 @@ export const translations: Record<Language, Translations> = {
     hero: {
       badge: "Проверенный парк строительной техники в наличии",
       titlePart1: "Аренда строительного ",
-      titleAccent: "инструмента и оборудования",
+      titleAccent: "инструмента, оборудования и техники",
       titlePart2: " в Астане",
       subtitle: "",
       ctaCatalog: "Открыть каталог техники",
