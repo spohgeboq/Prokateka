@@ -207,7 +207,7 @@ export const translations: Record<Language, Translations> = {
       tagline: "Центр аренды строительной техники и инструмента",
       hours: "Ежедневно: 08:00 – 20:00",
       fastDelivery: "Доставка на объект от 45 минут",
-      phone: "+7 (705) 631-78-87",
+      phone: "+7 705 503 6772",
     },
     header: {
       subtitle: "JALĞA BERU ORTALYĞY",
@@ -407,7 +407,7 @@ export const translations: Record<Language, Translations> = {
       tagline: "Құрылыс техникасы мен құралдарын жалға беру орталығы",
       hours: "Күн сайын: 08:00 – 20:00",
       fastDelivery: "Нысанға 45 минуттан бастап жеткізу",
-      phone: "+7 (705) 631-78-87",
+      phone: "+7 705 503 6772",
     },
     header: {
       subtitle: "JALĞA BERU ORTALYĞY",

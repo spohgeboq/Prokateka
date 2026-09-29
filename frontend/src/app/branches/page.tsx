@@ -192,10 +192,10 @@ export default function BranchesPage() {
                         {language === "kz" ? "Тікелей байланыс телефоны" : "Прямая связь со складом"}
                       </div>
                       <a
-                        href="tel:+77056317887"
+                        href="tel:+77055036772"
                         className="text-white hover:text-brand-400 font-bold text-base transition-colors"
                       >
-                        +7 (705) 631-78-87
+                        +7 705 503 6772
                       </a>
                       <div className="text-slate-400 text-xs mt-0.5">
                         {language === "kz"

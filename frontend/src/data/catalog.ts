@@ -462,4 +462,4 @@ export const CATALOG_ITEMS: EquipmentItem[] = [
   },
 ];
 
-export const MANAGER_WHATSAPP_NUMBER = "77056317887";
+export const MANAGER_WHATSAPP_NUMBER = "77055036772";

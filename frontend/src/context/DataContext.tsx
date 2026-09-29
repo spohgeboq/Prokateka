@@ -24,8 +24,8 @@ interface DataContextType {
 }
 
 const defaultSettings: SiteSettings = {
-  whatsappNumber: "77056317887",
-  contactPhone: "+7 (705) 631-78-87",
+  whatsappNumber: "77055036772",
+  contactPhone: "+7 705 503 6772",
   workingHours: "Ежедневно: 08:00 – 20:00",
   companyName: "ИП «Прокатека»",
   companyBin: "970319350517",

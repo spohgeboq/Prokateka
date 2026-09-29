@@ -87,11 +87,11 @@ export default function ContactsPage() {
               </p>
             </div>
             <a
-              href={`tel:${settings?.contactPhone?.replace(/[^+\d]/g, "") || "+77056317887"}`}
+              href={`tel:${settings?.contactPhone?.replace(/[^+\d]/g, "") || "+77055036772"}`}
               className="w-full flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 text-white font-bold py-3 px-4 rounded-xl text-xs border border-white/10 transition-all"
             >
               <Phone className="w-4 h-4 text-brand-500" />
-              <span>{settings?.contactPhone || "+7 (705) 631-78-87"}</span>
+              <span>{settings?.contactPhone || "+7 705 503 6772"}</span>
             </a>
           </div>
 
@@ -158,7 +158,7 @@ export default function ContactsPage() {
 
             <div>
               <div className="text-slate-400 mb-1">Телефон / WhatsApp:</div>
-              <div className="font-bold text-white text-sm">{settings?.contactPhone || "+7 (705) 631-78-87"}</div>
+              <div className="font-bold text-white text-sm">{settings?.contactPhone || "+7 705 503 6772"}</div>
             </div>
           </div>
         </div>

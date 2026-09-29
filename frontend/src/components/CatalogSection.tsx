@@ -327,7 +327,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                         </button>
                       ) : (
                         <a
-                          href={`https://wa.me/${settings?.whatsappNumber || "77056317887"}?text=${encodeURIComponent(
+                          href={`https://wa.me/${settings?.whatsappNumber || "77055036772"}?text=${encodeURIComponent(
                             language === "kz"
                               ? `Сәлеметсіз бе! Мені «${item.nameKz}» қызықтырады. Осы жабдық қашан босайтынын немесе ұқсас құрал бар-жоғын білуге бола ма?`
                               : `Здравствуйте! Интересует «${item.name}». Подскажите, пожалуйста, когда освободится данный инструмент или есть ли свободный аналог?`

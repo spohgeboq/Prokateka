@@ -62,8 +62,8 @@ export function AdminDashboard() {
   const [branches, setBranches] = useState<BranchItem[]>([]);
   const [leads, setLeads] = useState<LeadItem[]>([]);
   const [settings, setSettings] = useState<SiteSettings>({
-    whatsappNumber: "77056317887",
-    contactPhone: "+7 (705) 631-78-87",
+    whatsappNumber: "77055036772",
+    contactPhone: "+7 705 503 6772",
     workingHours: "Ежедневно: 08:00 – 20:00",
     companyName: "ИП «Прокатека»",
     companyBin: "970319350517",
@@ -1194,7 +1194,7 @@ export function AdminDashboard() {
                       addressRu: "",
                       addressKz: "",
                       gisLink: "https://2gis.kz/astana/geo/70000001065108547",
-                      phone: "+7 (705) 631-78-87",
+                      phone: "+7 705 503 6772",
                       workingHoursRu: "Ежедневно: 08:00 – 20:00",
                       workingHoursKz: "Күн сайын: 08:00 – 20:00",
                       isMain: false,
@@ -1372,7 +1372,7 @@ export function AdminDashboard() {
                     onChange={(e) =>
                       setSettings({ ...settings, whatsappNumber: e.target.value.replace(/\D/g, "") })
                     }
-                    placeholder="77056317887"
+                    placeholder="77055036772"
                     className="w-full px-4 py-2.5 rounded-xl bg-navy-950 border border-white/10 text-white text-sm focus:outline-none focus:border-brand-500"
                   />
                   <span className="text-[11px] text-slate-400 mt-1 block">

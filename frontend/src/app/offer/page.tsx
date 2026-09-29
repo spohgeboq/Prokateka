@@ -211,7 +211,7 @@ export default function OfferPage() {
 КБе: 19
 БИК: CASPKZKA
 ИИК (Счет): KZ90722S000009362408
-Телефон / WhatsApp: 8 705 631 78 87`;
+Телефон / WhatsApp: +7 705 503 6772`;
 
   const handleCopyRequisites = () => {
     navigator.clipboard.writeText(requisitesFullText);
@@ -519,13 +519,13 @@ export default function OfferPage() {
                       <div>
                         <span className="text-slate-500 print:text-slate-600 block">Телефон / WhatsApp:</span>
                         <a
-                          href="https://wa.me/77056317887"
+                          href="https://wa.me/77055036772"
                           target="_blank"
                           rel="noreferrer"
                           className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-bold print:text-slate-950"
                         >
                           <Phone className="w-3.5 h-3.5 print:hidden" />
-                          <span>8 705 631 78 87</span>
+                          <span>+7 705 503 6772</span>
                         </a>
                       </div>
                     </div>

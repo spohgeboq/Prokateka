@@ -110,7 +110,7 @@ function CatalogMain() {
         ? `Сәлеметсіз бе! Мені осы құрал қызықтырады, бағасы қанша болады және жалға алу шарттары қандай?` 
         : `Здравствуйте! Интересует аренда этой техники. Подскажите цену и условия.`,
     ];
-    const waNumber = settings?.whatsappNumber || "77056317887"; 
+    const waNumber = settings?.whatsappNumber || "77055036772"; 
     const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
     window.open(url, "_blank");
   };
@@ -707,7 +707,7 @@ function CatalogMain() {
                             </button>
                           ) : (
                             <a
-                              href={`https://wa.me/${settings?.whatsappNumber || "77056317887"}?text=${encodeURIComponent(
+                              href={`https://wa.me/${settings?.whatsappNumber || "77055036772"}?text=${encodeURIComponent(
                                 language === "kz"
                                   ? `Сәлеметсіз бе! Мені «${item.nameKz}» қызықтырады. Осы жабдық қашан босайтынын немесе ұқсас құрал бар-жоғын білуге бола ма?`
                                   : `Здравствуйте! Интересует «${item.name}». Подскажите, пожалуйста, когда освободится данный инструмент или есть ли свободный аналог?`

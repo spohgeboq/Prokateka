@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       addressRu: body.addressRu,
       addressKz: body.addressKz || body.addressRu,
       gisLink: body.gisLink || "https://2gis.kz/astana/geo/70000001065108547",
-      phone: body.phone || "+7 (705) 631-78-87",
+      phone: body.phone || "+7 705 503 6772",
       workingHoursRu: body.workingHoursRu || "Ежедневно: 08:00 – 20:00",
       workingHoursKz: body.workingHoursKz || "Күн сайын: 08:00 – 20:00",
       isMain: Boolean(body.isMain),

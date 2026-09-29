@@ -119,7 +119,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ language = "ru" }) => {
     }
 
     // 2. Build multi-item formatted WhatsApp message
-    const waNumber = settings.whatsappNumber || "77056317887";
+    const waNumber = settings.whatsappNumber || "77055036772";
 
     const lines = [
       `ЗАПРОС СПИСКА ОБОРУДОВАНИЯ В PROKATEKA`,

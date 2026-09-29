@@ -100,11 +100,11 @@ export const Footer: React.FC<FooterProps> = ({ language }) => {
               </a>
 
               <a
-                href="tel:+77056317887"
+                href="tel:+77055036772"
                 className="inline-flex items-center gap-2 bg-navy-900 border border-white/10 hover:border-brand-500 text-slate-200 hover:text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-all"
               >
                 <Phone className="w-3.5 h-3.5 text-brand-500" />
-                <span>+7 (705) 631-78-87</span>
+                <span>+7 705 503 6772</span>
               </a>
             </div>
           </div>

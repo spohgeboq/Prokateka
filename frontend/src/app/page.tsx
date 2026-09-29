@@ -32,7 +32,7 @@ export default function HomePage() {
         : `Здравствуйте! Интересует аренда этой техники. Подскажите цену и условия.`,
     ];
     // use a fallback waNumber if settings is not imported
-    const waNumber = "77056317887"; 
+    const waNumber = "77055036772"; 
     const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
     window.open(url, "_blank");
   };
