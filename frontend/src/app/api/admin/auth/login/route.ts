@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       name: SESSION_COOKIE_NAME,
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: req.headers.get("x-forwarded-proto") === "https" || req.url.startsWith("https:"),
       path: "/",
       maxAge: 14 * 24 * 60 * 60, // 14 days
       sameSite: "lax",
