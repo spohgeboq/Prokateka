@@ -52,14 +52,38 @@ export async function POST(req: Request) {
     const db = readDb();
     const id = body.id || `item-${Date.now()}`;
 
+    // Resolve valid category
+    let finalCategoryId = body.categoryId;
+    let finalCategory = body.category;
+    let finalCategoryKz = body.categoryKz;
+
+    const matchedCat = db.categories.find((c) => c.id === finalCategoryId);
+    if (!matchedCat || (body.tier && matchedCat.tier !== body.tier)) {
+      const catByName = db.categories.find(
+        (c) => (body.tier ? c.tier === body.tier : true) && (c.nameRu === body.category || c.nameKz === body.categoryKz)
+      );
+      if (catByName) {
+        finalCategoryId = catByName.id;
+        finalCategory = catByName.nameRu;
+        finalCategoryKz = catByName.nameKz;
+      } else {
+        const firstInTier = db.categories.find((c) => c.tier === body.tier);
+        if (firstInTier) {
+          finalCategoryId = firstInTier.id;
+          finalCategory = firstInTier.nameRu;
+          finalCategoryKz = firstInTier.nameKz;
+        }
+      }
+    }
+
     const newItem: EquipmentItem = {
       id,
       name: body.name,
       nameKz: body.nameKz || body.name,
       tier: body.tier,
-      categoryId: body.categoryId || "general",
-      category: body.category || "Общее оборудование",
-      categoryKz: body.categoryKz || "Жалпы жабдықтар",
+      categoryId: finalCategoryId || "general",
+      category: finalCategory || "Общее оборудование",
+      categoryKz: finalCategoryKz || "Жалпы жабдықтар",
       powerType: body.powerType || "220v",
       image: body.image || "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80",
       gallery: body.gallery || [body.image || "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80"],
@@ -108,10 +132,37 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Позиция не найдена" }, { status: 404 });
     }
 
+    const tierToUse = body.tier || db.equipment[index].tier;
+    let finalCategoryId = body.categoryId || db.equipment[index].categoryId;
+    let finalCategory = body.category || db.equipment[index].category;
+    let finalCategoryKz = body.categoryKz || db.equipment[index].categoryKz;
+
+    const matchedCat = db.categories.find((c) => c.id === finalCategoryId);
+    if (!matchedCat || (tierToUse && matchedCat.tier !== tierToUse)) {
+      const catByName = db.categories.find(
+        (c) => (tierToUse ? c.tier === tierToUse : true) && (c.nameRu === finalCategory || c.nameKz === finalCategoryKz)
+      );
+      if (catByName) {
+        finalCategoryId = catByName.id;
+        finalCategory = catByName.nameRu;
+        finalCategoryKz = catByName.nameKz;
+      } else {
+        const firstInTier = db.categories.find((c) => c.tier === tierToUse);
+        if (firstInTier) {
+          finalCategoryId = firstInTier.id;
+          finalCategory = firstInTier.nameRu;
+          finalCategoryKz = firstInTier.nameKz;
+        }
+      }
+    }
+
     // Merge updates
     db.equipment[index] = {
       ...db.equipment[index],
       ...body,
+      categoryId: finalCategoryId,
+      category: finalCategory,
+      categoryKz: finalCategoryKz,
     };
 
     writeDb(db);

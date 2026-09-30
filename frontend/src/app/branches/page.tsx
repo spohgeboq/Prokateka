@@ -113,15 +113,8 @@ export default function BranchesPage() {
           </p>
         </div>
 
-        {/* 1. TOP HERO SECTION: FLAGSHIP MAIN BRANCH (РЕАЛЬНО КРУТОЙ ГЛАВНЫЙ ФИЛИАЛ) */}
-        <div className="relative mb-16 rounded-3xl overflow-hidden border border-brand-500/30 bg-gradient-to-br from-navy-900 via-navy-920 to-navy-950 shadow-2xl shadow-brand-500/10">
-          {/* Ambient decorative glow */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-3xl pointer-events-none -mr-40 -mt-40" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Top highlight bar */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-brand-500 via-amber-400 to-emerald-400" />
-
+        {/* 1. TOP HERO SECTION: FLAGSHIP MAIN BRANCH */}
+        <div className="relative mb-16 rounded-3xl overflow-hidden border border-white/10 bg-navy-900 shadow-2xl">
           <div className="p-6 sm:p-10 lg:p-12 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
               

@@ -148,9 +148,16 @@ function CatalogMain() {
   // Filtered & sorted equipment
   const filteredItems = useMemo(() => {
     return itemsToUse.filter((item) => {
-      // Category filter (12 categories)
-      if (selectedCategory !== "all" && item.categoryId !== selectedCategory) {
-        return false;
+      // Category filter
+      if (selectedCategory !== "all") {
+        const matchesCategory =
+          item.categoryId === selectedCategory ||
+          (currentCategoryObj && (
+            item.categoryId === currentCategoryObj.id ||
+            item.category === currentCategoryObj.nameRu ||
+            item.categoryKz === currentCategoryObj.nameKz
+          ));
+        if (!matchesCategory) return false;
       }
 
       // Power type

@@ -234,11 +234,28 @@ export function AdminDashboard() {
     setSaving(true);
 
     try {
+      // Ensure categoryId strictly belongs to the selected tier
+      const tierCats = categories.filter((c) => c.tier === editingItem.tier);
+      let catIdToSave = editingItem.categoryId;
+      let matchedCat = tierCats.find((c) => c.id === catIdToSave);
+
+      if (!matchedCat && tierCats.length > 0) {
+        matchedCat = tierCats[0];
+        catIdToSave = tierCats[0].id;
+      }
+
+      const itemPayload = {
+        ...editingItem,
+        categoryId: catIdToSave,
+        category: matchedCat ? matchedCat.nameRu : editingItem.category,
+        categoryKz: matchedCat ? matchedCat.nameKz : editingItem.categoryKz,
+      };
+
       const isNew = !equipment.some((i) => i.id === editingItem.id);
       const res = await fetch("/api/equipment", {
         method: isNew ? "POST" : "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingItem),
+        body: JSON.stringify(itemPayload),
       });
 
       if (res.ok) {
@@ -836,14 +853,17 @@ export function AdminDashboard() {
 
                 <button
                   onClick={() => {
+                    const initTier = tiers[0]?.id || "equipment";
+                    const validCats = categories.filter((c) => c.tier === initTier);
+                    const initCat = validCats[0] || categories[0];
                     setEditingItem({
-                      id: `tool-${Date.now()}`,
+                      id: `item-${Date.now()}`,
                       name: "",
                       nameKz: "",
-                      tier: "tool",
-                      categoryId: categories[0]?.id || "tools-general",
-                      category: categories[0]?.nameRu || "Инструменты",
-                      categoryKz: categories[0]?.nameKz || "Құралдар",
+                      tier: initTier,
+                      categoryId: initCat?.id || "",
+                      category: initCat?.nameRu || "",
+                      categoryKz: initCat?.nameKz || "",
                       powerType: "220v",
                       image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80",
                       gallery: [],
@@ -1613,9 +1633,18 @@ export function AdminDashboard() {
                   <label className="block text-xs font-bold text-slate-300 mb-1">Раздел (Tier)</label>
                   <select
                     value={editingItem.tier}
-                    onChange={(e) =>
-                      setEditingItem({ ...editingItem, tier: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const newTier = e.target.value;
+                      const validCats = categories.filter((c) => c.tier === newTier);
+                      const firstCat = validCats[0];
+                      setEditingItem({
+                        ...editingItem,
+                        tier: newTier,
+                        categoryId: firstCat ? firstCat.id : "",
+                        category: firstCat ? firstCat.nameRu : "",
+                        categoryKz: firstCat ? firstCat.nameKz : "",
+                      });
+                    }}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-xs text-white"
                   >
                     {tiers.map((t) => (
