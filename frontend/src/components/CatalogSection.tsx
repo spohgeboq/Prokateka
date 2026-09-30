@@ -76,7 +76,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
       if (!a.popular && b.popular) return 1;
       return 0;
     });
-  }, [activeTier, onlyInStock, sortBy, searchQuery]);
+  }, [itemsToUse, activeTier, onlyInStock, sortBy, searchQuery]);
 
   return (
     <section id="catalog-preview" className="py-14 sm:py-20 bg-navy-950 relative">

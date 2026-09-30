@@ -94,7 +94,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const onFocus = () => refreshData();
     window.addEventListener("focus", onFocus);
     
-    return () => window.removeEventListener("focus", onFocus);
+    // Auto-refresh every 10 seconds to pick up admin changes in real-time
+    const interval = setInterval(() => refreshData(), 10000);
+    
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      clearInterval(interval);
+    };
   }, [refreshData]);
 
   // Dynamic Promotion Engine

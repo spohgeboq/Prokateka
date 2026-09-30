@@ -167,7 +167,7 @@ function CatalogMain() {
       if (!a.popular && b.popular) return 1;
       return 0;
     });
-  }, [selectedCategory, selectedPowerType, selectedBranch, onlyInStock, sortBy, searchQuery]);
+  }, [itemsToUse, selectedCategory, selectedPowerType, selectedBranch, onlyInStock, sortBy, searchQuery]);
 
   const handleResetFilters = () => {
     setSelectedCategory("all");
