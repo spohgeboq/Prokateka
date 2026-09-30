@@ -5,6 +5,8 @@ export interface Tier {
   id: string;
   nameRu: string;
   nameKz: string;
+  iconName?: string;
+  color?: string;
 }
 
 export interface AccessoryItem {

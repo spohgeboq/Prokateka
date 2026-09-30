@@ -367,7 +367,7 @@ function CatalogMain() {
                 return (
                   <div key={tier.id} className="mb-4">
                     <div className="text-[11px] font-bold uppercase tracking-wider text-brand-400/90 px-3 py-1 flex items-center gap-1.5 mb-1">
-                      <Layers className="w-3.5 h-3.5" />
+                      <CategoryIcon name={tier.iconName || (tier.id === "heavy" ? "Truck" : tier.id === "equipment" ? "Cog" : tier.id === "tool" ? "Wrench" : "Layers")} className="w-3.5 h-3.5" />
                       <span>{language === "kz" ? tier.nameKz : tier.nameRu}</span>
                     </div>
                     <div className="space-y-0.5">

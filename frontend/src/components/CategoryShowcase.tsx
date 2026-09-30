@@ -30,29 +30,24 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ language }) 
   const getTierBadge = (tierId: string) => {
     const tier = tiers.find(t => t.id === tierId);
     const label = tier ? (language === "kz" ? tier.nameKz : tier.nameRu) : tierId;
+    const color = tier?.color;
     
-    switch (tierId) {
-      case "heavy":
-        return {
-          label,
-          className: "bg-amber-500/10 text-amber-300 border-amber-500/20",
-        };
-      case "equipment":
-        return {
-          label,
-          className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
-        };
-      case "tool":
-        return {
-          label,
-          className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-        };
-      default:
-        return {
-          label,
-          className: "bg-brand-500/10 text-brand-300 border-brand-500/20",
-        };
+    if (color === "amber" || tierId === "heavy") {
+      return { label, className: "bg-amber-500/10 text-amber-300 border-amber-500/20" };
     }
+    if (color === "blue" || tierId === "equipment") {
+      return { label, className: "bg-blue-500/10 text-blue-300 border-blue-500/20" };
+    }
+    if (color === "emerald" || tierId === "tool") {
+      return { label, className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20" };
+    }
+    if (color === "purple") {
+      return { label, className: "bg-purple-500/10 text-purple-300 border-purple-500/20" };
+    }
+    if (color === "rose") {
+      return { label, className: "bg-rose-500/10 text-rose-300 border-rose-500/20" };
+    }
+    return { label, className: "bg-brand-500/10 text-brand-300 border-brand-500/20" };
   };
 
   return (
@@ -117,7 +112,7 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ language }) 
                     : "text-slate-300 hover:text-white hover:bg-white/5"
                 }`}
               >
-                {tier.id === "heavy" ? <Truck className="w-4 h-4" /> : tier.id === "equipment" ? <Cog className="w-4 h-4" /> : tier.id === "tool" ? <Wrench className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
+                <CategoryIcon name={tier.iconName || (tier.id === "heavy" ? "Truck" : tier.id === "equipment" ? "Cog" : tier.id === "tool" ? "Wrench" : "Grid3X3")} className="w-4 h-4" />
                 <span>{language === "kz" ? tier.nameKz : tier.nameRu}</span>
                 <span className="text-[11px] opacity-75 font-normal">
                   ({liveCategories.filter((c) => c.tier === tier.id).length})

@@ -949,19 +949,25 @@
   },
   "tiers": [
     {
-      "id": "tool",
-      "nameRu": "Ручной инструмент",
-      "nameKz": "Қол саймандары"
+      "id": "heavy",
+      "nameRu": "Спецтехника и транспорт",
+      "nameKz": "Ауыр арнайы техника",
+      "iconName": "Truck",
+      "color": "amber"
     },
     {
       "id": "equipment",
-      "nameRu": "Оборудование",
-      "nameKz": "Жабдықтар"
+      "nameRu": "Строительное оборудование",
+      "nameKz": "Құрылыс жабдықтары",
+      "iconName": "Cog",
+      "color": "blue"
     },
     {
-      "id": "heavy",
-      "nameRu": "Спецтехника",
-      "nameKz": "Арнайы техника"
+      "id": "tool",
+      "nameRu": "Электро- и бензоинструмент",
+      "nameKz": "Кәсіби құралдар",
+      "iconName": "Wrench",
+      "color": "emerald"
     }
   ]
 }

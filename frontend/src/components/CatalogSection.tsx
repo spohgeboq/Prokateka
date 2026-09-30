@@ -7,6 +7,7 @@ import { CATALOG_ITEMS, EquipmentItem, EquipmentTier } from "@/data/catalog";
 import { Language, translations } from "@/data/translations";
 import { useData } from "@/context/DataContext";
 import { useCart } from "@/context/CartContext";
+import { CategoryIcon } from "./CategoryIcon";
 import {
   Wrench,
   Cog,
@@ -121,7 +122,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                   : "bg-navy-900 border border-white/10 text-slate-300 hover:text-white"
               }`}
             >
-              <Cog className="w-4 h-4" />
+              <CategoryIcon name={tier.iconName || (tier.id === "heavy" ? "Truck" : tier.id === "equipment" ? "Cog" : tier.id === "tool" ? "Wrench" : "Grid3X3")} className="w-4 h-4" />
               <span>{language === "kz" ? tier.nameKz : tier.nameRu}</span>
               <span className="text-[11px] opacity-75 font-normal">
                 ({itemsToUse.filter((i) => i.tier === tier.id).length})

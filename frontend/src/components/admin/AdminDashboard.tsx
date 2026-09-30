@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { EquipmentItem, EquipmentTier, Tier } from "@/data/catalog";
 import { CategoryDefinition } from "@/data/categories";
 import { DynamicPromotion, BranchItem, LeadItem, SiteSettings } from "@/lib/db";
+import { CategoryIcon } from "../CategoryIcon";
 import {
   LayoutDashboard,
   Wrench,
@@ -1090,13 +1091,15 @@ export function AdminDashboard() {
                 <button
                   onClick={() => {
                     setEditingTier({
-                      id: `tier-${Date.now()}`,
+                      id: "",
                       nameRu: "",
                       nameKz: "",
+                      iconName: "Truck",
+                      color: "amber",
                     });
                     setIsTierModalOpen(true);
                   }}
-                  className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-navy-950 font-bold px-4 py-2 rounded-xl text-xs transition-all"
+                  className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-navy-950 font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md shadow-brand-500/20"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Добавить раздел</span>
@@ -1104,37 +1107,76 @@ export function AdminDashboard() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {tiers.map((t) => (
-                  <div key={t.id} className="p-4 rounded-xl bg-navy-900 border border-white/10 flex justify-between items-start">
-                    <div>
-                      <h4 className="text-sm font-bold text-white mb-0.5">{t.nameRu}</h4>
-                      <p className="text-xs text-slate-400">KZ: {t.nameKz}</p>
-                      <p className="text-[10px] text-slate-500 mt-2 font-mono">{t.id}</p>
+                {tiers.map((t) => {
+                  const linkedCategories = categories.filter((c) => c.tier === t.id);
+                  const isAmber = t.color === "amber" || t.id === "heavy";
+                  const isBlue = t.color === "blue" || t.id === "equipment";
+                  const isEmerald = t.color === "emerald" || t.id === "tool";
+                  const isPurple = t.color === "purple";
+                  const isRose = t.color === "rose";
+
+                  const badgeClass = isAmber
+                    ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
+                    : isBlue
+                    ? "bg-sky-500/20 text-sky-400 border-sky-500/30"
+                    : isEmerald
+                    ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                    : isPurple
+                    ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
+                    : isRose
+                    ? "bg-rose-500/20 text-rose-400 border-rose-500/30"
+                    : "bg-brand-500/20 text-brand-400 border-brand-500/30";
+
+                  const icon = t.iconName || (isAmber ? "Truck" : isBlue ? "Cog" : isEmerald ? "Wrench" : "Layers");
+
+                  return (
+                    <div key={t.id} className="p-4 rounded-xl bg-navy-900 border border-white/10 flex justify-between items-start hover:border-white/20 transition-all">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-9 h-9 rounded-xl border flex items-center justify-center flex-shrink-0 ${badgeClass}`}>
+                          <CategoryIcon name={icon} className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white mb-0.5">{t.nameRu}</h4>
+                          <p className="text-xs text-slate-400">KZ: {t.nameKz}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-[10px] text-slate-500 font-mono bg-navy-950 px-1.5 py-0.5 rounded border border-white/5">{t.id}</span>
+                            <span className="text-[10px] text-brand-400 bg-brand-500/10 px-1.5 py-0.5 rounded font-semibold">
+                              {linkedCategories.length} категорий
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => {
+                            setEditingTier({ ...t });
+                            setIsTierModalOpen(true);
+                          }}
+                          className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300"
+                          title="Редактировать"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const warnText = linkedCategories.length > 0
+                              ? `Внимание! В разделе «${t.nameRu}» привязано ${linkedCategories.length} категорий. Удалить раздел?`
+                              : `Удалить раздел «${t.nameRu}»?`;
+                            if (confirm(warnText)) {
+                              await fetch(`/api/tiers?id=${t.id}`, { method: "DELETE" });
+                              fetchAllData();
+                              showToast(`Раздел «${t.nameRu}» удален!`);
+                            }
+                          }}
+                          className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400"
+                          title="Удалить"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => {
-                          setEditingTier({ ...t });
-                          setIsTierModalOpen(true);
-                        }}
-                        className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={async () => {
-                          if (confirm(`Удалить раздел «${t.nameRu}»?`)) {
-                            await fetch(`/api/tiers?id=${t.id}`, { method: "DELETE" });
-                            fetchAllData();
-                          }
-                        }}
-                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1968,13 +2010,17 @@ export function AdminDashboard() {
               className="space-y-3 text-xs"
             >
               <div>
-                <label className="block text-slate-300 mb-1">ID (лат. буквы без пробелов, например: scaffolding)</label>
+                <label className="block text-slate-300 mb-1">ID (лат. буквы без пробелов, например: transport, equipment, tools)</label>
                 <input
                   type="text"
                   required
-                  disabled={tiers.some((t) => t.id === editingTier.id)}
+                  disabled={tiers.some((t) => t.id === editingTier.id && editingTier.id !== "")}
                   value={editingTier.id.replace("tier-", "")}
-                  onChange={(e) => setEditingTier({ ...editingTier, id: e.target.value })}
+                  onChange={(e) => {
+                    const clean = e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+                    setEditingTier({ ...editingTier, id: clean });
+                  }}
+                  placeholder="например: heavy-machinery"
                   className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white disabled:opacity-50"
                 />
               </div>
@@ -1985,6 +2031,7 @@ export function AdminDashboard() {
                   required
                   value={editingTier.nameRu}
                   onChange={(e) => setEditingTier({ ...editingTier, nameRu: e.target.value })}
+                  placeholder="например: Спецтехника и транспорт"
                   className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
                 />
               </div>
@@ -1995,9 +2042,68 @@ export function AdminDashboard() {
                   required
                   value={editingTier.nameKz}
                   onChange={(e) => setEditingTier({ ...editingTier, nameKz: e.target.value })}
+                  placeholder="мысалы: Ауыр арнайы техника"
                   className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
                 />
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1">Иконка</label>
+                  <select
+                    value={editingTier.iconName || "Layers"}
+                    onChange={(e) => setEditingTier({ ...editingTier, iconName: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
+                  >
+                    <option value="Truck">Грузовик (Truck)</option>
+                    <option value="Cog">Шестеренка (Cog)</option>
+                    <option value="Wrench">Ключ (Wrench)</option>
+                    <option value="Layers">Слои (Layers)</option>
+                    <option value="Hammer">Молоток (Hammer)</option>
+                    <option value="HardHat">Каска (HardHat)</option>
+                    <option value="Zap">Молния (Zap)</option>
+                    <option value="Flame">Огонь (Flame)</option>
+                    <option value="Building2">Здание (Building)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 mb-1">Цветовой акцент</label>
+                  <select
+                    value={editingTier.color || "amber"}
+                    onChange={(e) => setEditingTier({ ...editingTier, color: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
+                  >
+                    <option value="amber">Желтый / Золотистый (Amber)</option>
+                    <option value="blue">Синий (Sky Blue)</option>
+                    <option value="emerald">Зеленый (Emerald)</option>
+                    <option value="purple">Фиолетовый (Purple)</option>
+                    <option value="rose">Красный / Розовый (Rose)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="p-3 rounded-xl bg-navy-950 border border-white/10 flex items-center gap-3">
+                <span className="text-[11px] text-slate-400">Превью:</span>
+                <div className="flex items-center gap-2 font-bold text-xs">
+                  <CategoryIcon name={editingTier.iconName || "Layers"} className={`w-4 h-4 ${
+                    editingTier.color === "blue" ? "text-sky-400" :
+                    editingTier.color === "emerald" ? "text-emerald-400" :
+                    editingTier.color === "purple" ? "text-purple-400" :
+                    editingTier.color === "rose" ? "text-rose-400" : "text-amber-400"
+                  }`} />
+                  <span className={
+                    editingTier.color === "blue" ? "text-sky-400" :
+                    editingTier.color === "emerald" ? "text-emerald-400" :
+                    editingTier.color === "purple" ? "text-purple-400" :
+                    editingTier.color === "rose" ? "text-rose-400" : "text-amber-400"
+                  }>
+                    {editingTier.nameRu || "Название раздела"}
+                  </span>
+                </div>
+              </div>
+
               <div className="flex justify-end gap-2 pt-3">
                 <button
                   type="button"
@@ -2008,8 +2114,8 @@ export function AdminDashboard() {
                 </button>
                 <button
                   type="submit"
-                  disabled={saving}
-                  className="px-4 py-1.5 rounded-lg bg-brand-500 font-bold text-navy-950"
+                  disabled={saving || !editingTier.id.trim() || !editingTier.nameRu.trim()}
+                  className="px-4 py-1.5 rounded-lg bg-brand-500 font-bold text-navy-950 disabled:opacity-50"
                 >
                   Сохранить
                 </button>

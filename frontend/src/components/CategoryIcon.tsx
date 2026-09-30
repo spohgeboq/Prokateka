@@ -13,6 +13,7 @@ import {
   Cpu,
   Hammer,
   HardHat,
+  Cog,
   LucideProps,
 } from "lucide-react";
 
@@ -24,6 +25,9 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({ name, ...props }) =>
   switch (name) {
     case "Truck":
       return <Truck {...props} />;
+    case "Cog":
+    case "Settings":
+      return <Cog {...props} />;
     case "Layers":
       return <Layers {...props} />;
     case "Compass":

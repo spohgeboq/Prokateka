@@ -296,10 +296,67 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {tiers.map((tier) => {
                 const tierCats = liveCategories.filter((c) => c.tier === tier.id);
+                
+                const isAmber = tier.color === "amber" || tier.id === "heavy";
+                const isBlue = tier.color === "blue" || tier.id === "equipment";
+                const isEmerald = tier.color === "emerald" || tier.id === "tool";
+                const isPurple = tier.color === "purple";
+                const isRose = tier.color === "rose";
+
+                const textColor = isAmber
+                  ? "text-amber-400"
+                  : isBlue
+                  ? "text-sky-400"
+                  : isEmerald
+                  ? "text-emerald-400"
+                  : isPurple
+                  ? "text-purple-400"
+                  : isRose
+                  ? "text-rose-400"
+                  : "text-brand-400";
+
+                const borderColor = isAmber
+                  ? "border-amber-400/30"
+                  : isBlue
+                  ? "border-sky-400/30"
+                  : isEmerald
+                  ? "border-emerald-400/30"
+                  : isPurple
+                  ? "border-purple-400/30"
+                  : isRose
+                  ? "border-rose-400/30"
+                  : "border-white/10";
+
+                const hoverBg = isAmber
+                  ? "group-hover:bg-amber-500/20"
+                  : isBlue
+                  ? "group-hover:bg-sky-500/20"
+                  : isEmerald
+                  ? "group-hover:bg-emerald-500/20"
+                  : isPurple
+                  ? "group-hover:bg-purple-500/20"
+                  : isRose
+                  ? "group-hover:bg-rose-500/20"
+                  : "group-hover:bg-brand-500/20";
+
+                const hoverText = isAmber
+                  ? "group-hover:text-amber-400"
+                  : isBlue
+                  ? "group-hover:text-sky-400"
+                  : isEmerald
+                  ? "group-hover:text-emerald-400"
+                  : isPurple
+                  ? "group-hover:text-purple-400"
+                  : isRose
+                  ? "group-hover:text-rose-400"
+                  : "group-hover:text-brand-400";
+
+                const iconName = tier.iconName || (isAmber ? "Truck" : isBlue ? "Cog" : isEmerald ? "Wrench" : "Layers");
+
                 return (
                   <div key={tier.id}>
-                    <div className="flex items-center gap-2 pb-2.5 mb-3 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-brand-400">
-                      <Layers className="w-4 h-4" />
+                    <div className={`flex items-center gap-2 pb-2.5 mb-3 border-b text-xs font-bold uppercase tracking-wider ${textColor} ${borderColor}`}>
+                      <CategoryIcon name={iconName} className="w-4 h-4" />
                       <span>{language === "kz" ? tier.nameKz : tier.nameRu}</span>
                     </div>
                     <div className="space-y-1.5 max-h-[310px] overflow-y-auto pr-1 no-scrollbar">
@@ -310,7 +367,7 @@ export const Header: React.FC<HeaderProps> = ({
                           onClick={() => setCatalogMegaMenuOpen(false)}
                           className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-navy-900 border border-transparent hover:border-white/10 transition-colors"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-navy-900 group-hover:bg-brand-500/20 text-slate-300 group-hover:text-brand-400 flex items-center justify-center flex-shrink-0 transition-colors">
+                          <div className={`w-8 h-8 rounded-lg bg-navy-900 ${hoverBg} text-slate-300 ${hoverText} flex items-center justify-center flex-shrink-0 transition-colors`}>
                             <CategoryIcon name={c.iconName} className="w-4 h-4" />
                           </div>
                           <div className="min-w-0">
