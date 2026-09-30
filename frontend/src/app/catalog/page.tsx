@@ -519,15 +519,12 @@ function CatalogMain() {
                 </div>
 
                 <div className="flex items-center gap-3 self-end sm:self-auto flex-shrink-0">
-                  <div className="text-right">
+                  <div className="text-right hidden sm:block">
                     <span className="text-[11px] text-slate-400 block">
-                      {language === "kz" ? "Аренда" : "Аренда от"}
+                      {language === "kz" ? "Бағасы" : "Условия аренды"}
                     </span>
-                    <span className="text-white font-extrabold text-sm">
-                      {currentCategoryObj.startPrice.toLocaleString("ru-RU")} ₸
-                    </span>
-                    <span className="text-slate-400 text-xs ml-1">
-                      /{language === "kz" ? currentCategoryObj.priceUnitKz : currentCategoryObj.priceUnitRu}
+                    <span className="text-brand-400 font-bold text-xs">
+                      {language === "kz" ? "WhatsApp-та біліңіз" : "Цена по запросу"}
                     </span>
                   </div>
 

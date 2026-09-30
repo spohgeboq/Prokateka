@@ -6,6 +6,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Language, translations } from "@/data/translations";
 import { MANAGER_WHATSAPP_NUMBER } from "@/data/catalog";
+import { useData } from "@/context/DataContext";
+import { BranchItem } from "@/lib/db";
 import {
   MapPin,
   Clock,
@@ -24,23 +26,46 @@ import {
   MessageCircle,
   Car,
   ArrowRight,
+  Building2,
 } from "lucide-react";
 
 export default function BranchesPage() {
   const [language, setLanguage] = useState<Language>("ru");
-  const [copied, setCopied] = useState(false);
-  const t = translations[language];
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const { branches: liveBranches, settings } = useData();
 
-  const branchAddress =
-    language === "kz"
-      ? "Астана қ., Әбікен Бектұров көшесі, 4Г"
-      : "г. Астана, ул. Абикена Бектурова, 4Г";
+  const defaultBranches: BranchItem[] = [
+    {
+      id: "astana-bekturova",
+      nameRu: "Склад выдачи Бектурова 4Г",
+      nameKz: "Бектұров 4Г қоймасы",
+      addressRu: "г. Астана, ул. Абикена Бектурова, 4Г (въезд с торца)",
+      addressKz: "Астана қ., Әбікен Бектұров көш., 4Г",
+      gisLink: "https://2gis.kz/astana/geo/70000001065108547",
+      phone: "+7 705 503 6772",
+      workingHoursRu: "Ежедневно: 08:00 – 20:00 (без перерывов)",
+      workingHoursKz: "Күн сайын: 08:00 – 20:00 (үзіліссіз)",
+      isMain: true,
+    },
+  ];
 
-  const handleCopyAddress = () => {
-    navigator.clipboard.writeText("г. Астана, ул. Абикена Бектурова, 4Г");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const branchesToRender: BranchItem[] =
+    liveBranches && liveBranches.length > 0 ? liveBranches : defaultBranches;
+
+  const [selectedBranchId, setSelectedBranchId] = useState<string>(
+    branchesToRender[0]?.id || "astana-bekturova"
+  );
+
+  const currentBranch =
+    branchesToRender.find((b) => b.id === selectedBranchId) || branchesToRender[0];
+
+  const handleCopy = (address: string, id: string) => {
+    navigator.clipboard.writeText(address);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
+
+  const waNumber = settings?.whatsappNumber || MANAGER_WHATSAPP_NUMBER;
 
   return (
     <div className="min-h-screen bg-navy-950 text-slate-100 flex flex-col font-sans">
@@ -54,35 +79,179 @@ export default function BranchesPage() {
           </Link>
           <span>/</span>
           <span className="text-slate-200 font-semibold">
-            {language === "kz" ? "Астанадағы филиал" : "Филиал в Астане"}
+            {language === "kz" ? "Филиалдар мен қоймалар" : "Филиалы и склады"}
           </span>
         </div>
 
         {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-4">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>
               {language === "kz"
-                ? "Астана қ. ресми филиалы • Күн сайын 08:00 – 20:00"
-                : "Официальный филиал в г. Астана • Открыто ежедневно 08:00 – 20:00"}
+                ? `Астана қ. ресми қоймалары • Барлығы: ${branchesToRender.length} нүкте`
+                : `Официальные филиалы и пункты выдачи в г. Астана • Всего: ${branchesToRender.length}`}
             </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
             {language === "kz"
-              ? "Астанадағы PROkateka құралдар мен жабдықтар қоймасы"
-              : "Центр проката и склад оборудования PROkateka в Астане"}
+              ? "Астанадағы PROkateka құралдар мен жабдықтар қоймалары"
+              : "Филиалы и центры проката оборудования PROkateka в Астане"}
           </h1>
 
           <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl mx-auto">
             {language === "kz"
-              ? "Бірыңғай ресми пункт: қоймада 180+ дайын құрал бірлігі, беру алдындағы сынақ стенді, Бектұров көшесінен ыңғайлы кіру, тегін автотұрақ және қала бойынша 45 минутта жеткізу."
-              : "Единая официальная база: более 180 единиц проверенного инструмента в наличии, стенд проверки перед выдачей, удобный заезд с улицы Бектурова, свободная парковка и доставка по Астане от 45 минут."}
+              ? "Қоймаларымызда 180+ дайын құрал бірлігі, беру алдындағы сынақ стенді, ыңғайлы көлік кіруі, тегін автотұрақ және қала бойынша 45 минутта жеткізу бар."
+              : "Все филиалы оборудованы стендом проверки перед выдачей, удобным заездом для любого транспорта, парковкой и доставкой по Астане от 45 минут."}
           </p>
         </div>
 
-        {/* Main Location Showcase (2 Columns: Specs & Actions + Interactive Map) */}
+        {/* All Branches Cards Grid */}
+        <div className="mb-14">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center">
+                <Building2 className="w-4 h-4" />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+                {language === "kz" ? "Біздің мекенжайлар" : "Адреса пунктов выдачи"}
+              </h2>
+            </div>
+            <span className="text-xs text-slate-400 font-medium">
+              {branchesToRender.length} {language === "kz" ? "қойма" : "склада"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {branchesToRender.map((b, idx) => {
+              const isSelected = b.id === currentBranch.id;
+              const name = language === "kz" ? b.nameKz : b.nameRu;
+              const address = language === "kz" ? b.addressKz : b.addressRu;
+              const hours = language === "kz" ? b.workingHoursKz : b.workingHoursRu;
+
+              return (
+                <div
+                  key={b.id}
+                  onClick={() => setSelectedBranchId(b.id)}
+                  className={`cursor-pointer rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between border ${
+                    isSelected
+                      ? "bg-navy-900 border-brand-500 shadow-xl shadow-brand-500/10 ring-1 ring-brand-500/50"
+                      : "bg-navy-900/80 hover:bg-navy-900 border-white/10 hover:border-white/25"
+                  }`}
+                >
+                  <div>
+                    {/* Top Tag */}
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span
+                        className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                          b.isMain
+                            ? "bg-brand-500/20 text-brand-400 border border-brand-500/30"
+                            : "bg-white/5 text-slate-300 border border-white/10"
+                        }`}
+                      >
+                        {b.isMain
+                          ? language === "kz"
+                            ? "Басты филиал"
+                            : "Главный филиал"
+                          : language === "kz"
+                          ? `${idx + 1}-бөлімше`
+                          : `Филиал №${idx + 1}`}
+                      </span>
+
+                      {isSelected && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>{language === "kz" ? "Таңдалған" : "Выбран"}</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Name */}
+                    <h3 className="text-white font-bold text-base sm:text-lg mb-3 leading-snug">
+                      {name}
+                    </h3>
+
+                    {/* Address with copy button */}
+                    <div className="p-3 rounded-xl bg-navy-950/80 border border-white/5 mb-3 flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2 min-w-0">
+                        <MapPin className="w-4 h-4 text-brand-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-xs text-slate-300 leading-relaxed font-medium">
+                          {address}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(address, b.id);
+                        }}
+                        className="p-1 rounded-lg bg-navy-900 hover:bg-navy-800 text-slate-400 hover:text-white border border-white/10 flex-shrink-0 transition-colors"
+                        title="Скопировать адрес"
+                      >
+                        {copiedId === b.id ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Hours */}
+                    <div className="flex items-center gap-2 text-xs text-slate-300 mb-2">
+                      <Clock className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                      <span>{hours}</span>
+                    </div>
+
+                    {/* Phone */}
+                    <div className="flex items-center gap-2 text-xs text-slate-300 mb-4">
+                      <Phone className="w-4 h-4 text-brand-400 flex-shrink-0" />
+                      <a
+                        href={`tel:${b.phone.replace(/[^0-9+]/g, "")}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-white hover:text-brand-400 font-semibold transition-colors"
+                      >
+                        {b.phone}
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="pt-4 border-t border-white/10 flex items-center gap-2">
+                    <a
+                      href={b.gisLink || "https://2gis.kz/astana"}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 bg-[#2ba300] hover:bg-[#269100] text-white font-bold py-2 px-3 rounded-xl text-xs transition-colors shadow-sm"
+                    >
+                      <Navigation className="w-3.5 h-3.5 fill-white" />
+                      <span>2GIS</span>
+                      <ExternalLink className="w-3 h-3 text-white/80" />
+                    </a>
+
+                    <a
+                      href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
+                        language === "kz"
+                          ? `Сәлеметсіз бе! «${name}» филиалы бойынша сұрағым бар.`
+                          : `Здравствуйте! Интересует наличие инструмента на филиале: «${name}».`
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center justify-center gap-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold py-2 px-3 rounded-xl text-xs transition-colors"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Selected Branch Showcase & Map */}
         <div className="bg-navy-900 border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl mb-16 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -93,7 +262,7 @@ export default function BranchesPage() {
                 {/* 2GIS Trust Badge */}
                 <div className="flex flex-wrap items-center gap-3 mb-4">
                   <a
-                    href="https://2gis.kz/astana/geo/70000001065108547"
+                    href={currentBranch.gisLink || "https://2gis.kz/astana"}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 bg-[#2ba300]/15 hover:bg-[#2ba300]/25 border border-[#2ba300]/30 text-emerald-400 px-3 py-1 rounded-xl text-xs font-bold transition-colors"
@@ -119,7 +288,7 @@ export default function BranchesPage() {
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
-                  PROkateka — {language === "kz" ? "Басты орталық" : "Главный филиал и склад"}
+                  PROkateka — {language === "kz" ? currentBranch.nameKz : currentBranch.nameRu}
                 </h2>
 
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
@@ -137,23 +306,32 @@ export default function BranchesPage() {
                       <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-0.5">
                         {language === "kz" ? "Мекенжайы" : "Точный адрес филиала"}
                       </div>
-                      <div className="text-white font-bold">{branchAddress}</div>
+                      <div className="text-white font-bold">
+                        {language === "kz" ? currentBranch.addressKz : currentBranch.addressRu}
+                      </div>
                       <div className="text-slate-400 text-xs mt-0.5">
                         {language === "kz"
-                          ? "Бектұров көшесінен кіру, ғимараттың бүйір жағынан кіру, тегін автотұрақ"
-                          : "Удобный заезд с ул. Бектурова, отдельный вход с торца здания, парковка"}
+                          ? "Көлікке ыңғайлы кіру, тегін автотұрақ және жедел беру"
+                          : "Удобный заезд, парковка и оперативная выдача оборудования"}
                       </div>
                     </div>
                     <button
-                      onClick={handleCopyAddress}
+                      onClick={() =>
+                        handleCopy(
+                          language === "kz" ? currentBranch.addressKz : currentBranch.addressRu,
+                          "main-showcase"
+                        )
+                      }
                       type="button"
                       className="inline-flex items-center gap-1 text-[11px] text-brand-400 hover:text-brand-300 bg-navy-900 border border-white/10 hover:border-brand-500/40 px-2.5 py-1.5 rounded-lg transition-all"
                       title="Скопировать адрес"
                     >
-                      {copied ? (
+                      {copiedId === "main-showcase" ? (
                         <>
                           <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          <span className="text-emerald-400">{language === "kz" ? "Көшірілді" : "Скопировано"}</span>
+                          <span className="text-emerald-400">
+                            {language === "kz" ? "Көшірілді" : "Скопировано"}
+                          </span>
                         </>
                       ) : (
                         <>
@@ -172,14 +350,12 @@ export default function BranchesPage() {
                         {language === "kz" ? "Жұмыс кестесі" : "Режим работы пункта выдачи"}
                       </div>
                       <div className="text-white font-bold">
-                        {language === "kz"
-                          ? "Дүйсенбі – Жексенбі: 08:00 – 20:00 (Демалыссыз)"
-                          : "Понедельник – Воскресенье: 08:00 – 20:00 (Без выходных)"}
+                        {language === "kz" ? currentBranch.workingHoursKz : currentBranch.workingHoursRu}
                       </div>
                       <div className="text-emerald-400 text-xs mt-0.5 font-medium">
                         {language === "kz"
-                          ? "Түскі үзіліссіз жұмыс істейміз"
-                          : "Работаем без перерыва на обед и праздников"}
+                          ? "Демалыссыз және түскі үзіліссіз жұмыс істейміз"
+                          : "Работаем без перерыва на обед и выходных"}
                       </div>
                     </div>
                   </div>
@@ -192,10 +368,10 @@ export default function BranchesPage() {
                         {language === "kz" ? "Тікелей байланыс телефоны" : "Прямая связь со складом"}
                       </div>
                       <a
-                        href="tel:+77055036772"
+                        href={`tel:${currentBranch.phone.replace(/[^0-9+]/g, "")}`}
                         className="text-white hover:text-brand-400 font-bold text-base transition-colors"
                       >
-                        +7 705 503 6772
+                        {currentBranch.phone}
                       </a>
                       <div className="text-slate-400 text-xs mt-0.5">
                         {language === "kz"
@@ -210,7 +386,7 @@ export default function BranchesPage() {
               {/* Action Buttons Row */}
               <div className="pt-2 flex flex-wrap items-center gap-3">
                 <a
-                  href="https://2gis.kz/astana/geo/70000001065108547"
+                  href={currentBranch.gisLink || "https://2gis.kz/astana"}
                   target="_blank"
                   rel="noreferrer"
                   className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-[#2ba300] hover:bg-[#269100] text-white font-bold px-6 py-3.5 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-[#2ba300]/20"
@@ -220,12 +396,11 @@ export default function BranchesPage() {
                   <ExternalLink className="w-3.5 h-3.5 text-white/80" />
                 </a>
 
-
                 <a
-                  href={`https://wa.me/${MANAGER_WHATSAPP_NUMBER}?text=${encodeURIComponent(
+                  href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
                     language === "kz"
-                      ? "Сәлеметсіз бе! Бектурова 4Г филиалында құрал бар ма екенін білгім келеді."
-                      : "Здравствуйте! Хочу уточнить наличие инструмента на филиале Бектурова 4Г перед выездом."
+                      ? `Сәлеметсіз бе! «${currentBranch.nameKz}» филиалында құрал бар ма екенін білгім келеді.`
+                      : `Здравствуйте! Хочу уточнить наличие инструмента на филиале «${currentBranch.nameRu}» перед выездом.`
                   )}`}
                   target="_blank"
                   rel="noreferrer"
@@ -240,33 +415,33 @@ export default function BranchesPage() {
             {/* Right Col (5/12): Live Map Integration */}
             <div className="lg:col-span-5 flex flex-col">
               <div className="relative w-full h-full min-h-[360px] sm:min-h-[440px] rounded-2xl overflow-hidden border border-white/15 bg-navy-950 flex flex-col shadow-inner">
-                {/* Embedded Map Frame centered on Bekturova 4G, Astana */}
+                {/* Embedded Map Frame */}
                 <iframe
                   title="Карта филиала PROkateka в Астане"
                   src="https://www.openstreetmap.org/export/embed.html?bbox=71.3850%2C51.1130%2C71.4090%2C51.1250&layer=mapnik&marker=51.11916%2C71.397411"
-                  className="w-full h-full flex-1 border-0 filter contrast-125 brightness-90"
+                  className="w-full h-full flex-1 border-0 filter contrast-125 brightness-90 min-h-[300px]"
                   loading="lazy"
                 />
 
                 {/* Map Bottom Card Overlay */}
                 <div className="p-4 bg-navy-950/95 border-t border-white/10 backdrop-blur-md flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-white text-xs font-bold flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-brand-400" />
-                      <span>PROkateka • ул. Бектурова 4Г</span>
+                  <div className="min-w-0">
+                    <div className="text-white text-xs font-bold flex items-center gap-1.5 truncate">
+                      <MapPin className="w-3.5 h-3.5 text-brand-400 flex-shrink-0" />
+                      <span className="truncate">PROkateka • {currentBranch.nameRu}</span>
                     </div>
-                    <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                      51.11916° N, 71.39741° E
+                    <div className="text-[11px] text-slate-400 truncate mt-0.5">
+                      {currentBranch.addressRu}
                     </div>
                   </div>
 
                   <a
-                    href="https://2gis.kz/astana/geo/70000001065108547"
+                    href={currentBranch.gisLink || "https://2gis.kz/astana"}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-400 hover:text-brand-300 transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-400 hover:text-brand-300 transition-colors flex-shrink-0"
                   >
-                    <span>2GIS карта</span>
+                    <span>2GIS</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </a>
                 </div>
@@ -281,7 +456,7 @@ export default function BranchesPage() {
             <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
               {language === "kz"
                 ? "Филиалдан құрал алудың артықшылықтары"
-                : "Что доступно на нашем филиале в Астане"}
+                : "Что доступно на наших филиалах в Астане"}
             </h3>
             <p className="text-xs sm:text-sm text-slate-400">
               {language === "kz"
@@ -291,7 +466,6 @@ export default function BranchesPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Feature 1 */}
             <div className="p-6 rounded-2xl bg-navy-900 border border-white/10 hover:border-brand-500/30 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 mb-4">
@@ -310,7 +484,6 @@ export default function BranchesPage() {
               </div>
             </div>
 
-            {/* Feature 2 */}
             <div className="p-6 rounded-2xl bg-navy-900 border border-white/10 hover:border-brand-500/30 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
@@ -329,7 +502,6 @@ export default function BranchesPage() {
               </div>
             </div>
 
-            {/* Feature 3 */}
             <div className="p-6 rounded-2xl bg-navy-900 border border-white/10 hover:border-brand-500/30 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
@@ -348,7 +520,6 @@ export default function BranchesPage() {
               </div>
             </div>
 
-            {/* Feature 4 */}
             <div className="p-6 rounded-2xl bg-navy-900 border border-white/10 hover:border-brand-500/30 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-4">
@@ -367,7 +538,6 @@ export default function BranchesPage() {
               </div>
             </div>
 
-            {/* Feature 5 */}
             <div className="p-6 rounded-2xl bg-navy-900 border border-white/10 hover:border-brand-500/30 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 mb-4">
@@ -386,7 +556,6 @@ export default function BranchesPage() {
               </div>
             </div>
 
-            {/* Feature 6 */}
             <div className="p-6 rounded-2xl bg-navy-900 border border-white/10 hover:border-brand-500/30 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
@@ -434,7 +603,6 @@ export default function BranchesPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Review 1 */}
             <div className="p-5 rounded-2xl bg-navy-950 border border-white/5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -454,7 +622,6 @@ export default function BranchesPage() {
               <div className="text-[11px] text-slate-500 mt-4">2GIS Проверенный отзыв</div>
             </div>
 
-            {/* Review 2 */}
             <div className="p-5 rounded-2xl bg-navy-950 border border-white/5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -474,7 +641,6 @@ export default function BranchesPage() {
               <div className="text-[11px] text-slate-500 mt-4">2GIS Проверенный отзыв</div>
             </div>
 
-            {/* Review 3 */}
             <div className="p-5 rounded-2xl bg-navy-950 border border-white/5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -512,10 +678,10 @@ export default function BranchesPage() {
           </div>
 
           <a
-            href={`https://wa.me/${MANAGER_WHATSAPP_NUMBER}?text=${encodeURIComponent(
+            href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
               language === "kz"
-                ? "Сәлеметсіз бе! Мен Бектурова 4Г филиалына келе жатырмын, құрал брондағым келеді."
-                : "Здравствуйте! Планирую приехать на филиал Бектурова 4Г, хочу забронировать инструмент."
+                ? `Сәлеметсіз бе! Мен «${currentBranch.nameKz}» филиалына келе жатырмын, құрал брондағым келеді.`
+                : `Здравствуйте! Планирую приехать на филиал «${currentBranch.nameRu}», хочу забронировать инструмент.`
             )}`}
             target="_blank"
             rel="noreferrer"

@@ -197,11 +197,11 @@ export default function PricingPage() {
                 <div className="p-3.5 rounded-xl bg-navy-950 border border-white/5 space-y-2 text-xs text-slate-300">
                   <div className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                    <span>{language === "kz" ? "Kaspi немесе картаға күнінде қайтару" : "Возврат залога день в день на Kaspi или карту"}</span>
+                    <span>{language === "kz" ? "Аренда без залога (қымбат құралдарды қоспағанда)" : "Аренда без залога (кроме дорогостоящих инструментов)"}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                    <span>{language === "kz" ? "Оператормен бірге залогсыз беріледі" : "Без залога при аренде спецтехники с оператором"}</span>
+                    <span>{language === "kz" ? "Қажет болса Kaspi немесе картаға күнінде қайтару" : "Возврат залога день в день на Kaspi или карту"}</span>
                   </div>
                 </div>
               </div>
@@ -223,7 +223,7 @@ export default function PricingPage() {
                 <div className="p-3.5 rounded-xl bg-navy-950 border border-white/5 space-y-1.5 text-xs text-slate-300">
                   <div className="flex items-center justify-between">
                     <span>{language === "kz" ? "Құрал жеткізу:" : "Курьер (инструмент):"}</span>
-                    <strong className="text-white">от 3 000 ₸</strong>
+                    <strong className="text-white">{language === "kz" ? "1 000 ₸ бастап" : "от 1 000 ₸"}</strong>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>{language === "kz" ? "Борттық көлік:" : "Бортовой транспорт:"}</span>
