@@ -35,6 +35,7 @@ import {
   AlertTriangle,
   Clock,
   ChevronRight,
+  Menu,
 } from "lucide-react";
 
 type AdminTab =
@@ -96,6 +97,12 @@ export function AdminDashboard() {
 
   // Settings form
   const [adminPasswordInput, setAdminPasswordInput] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleTabClick = (tab: AdminTab) => {
+    setActiveTab(tab);
+    setIsSidebarOpen(false);
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -381,8 +388,16 @@ export function AdminDashboard() {
         </div>
       )}
 
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-navy-950/80 backdrop-blur-sm z-30 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="w-64 bg-navy-900 border-r border-white/10 flex flex-col justify-between hidden md:flex flex-shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-navy-900 border-r border-white/10 flex flex-col justify-between transform transition-transform duration-300 md:relative md:translate-x-0 flex-shrink-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div>
           {/* Logo Bar */}
           <div className="p-6 border-b border-white/10 flex items-center gap-3">
@@ -408,7 +423,7 @@ export function AdminDashboard() {
           {/* Menu Items */}
           <nav className="p-4 space-y-1.5">
             <button
-              onClick={() => setActiveTab("dashboard")}
+              onClick={() => handleTabClick("dashboard")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${
                 activeTab === "dashboard"
                   ? "bg-brand-500 text-navy-950 shadow-md shadow-brand-500/20"
@@ -420,7 +435,7 @@ export function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab("equipment")}
+              onClick={() => handleTabClick("equipment")}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all ${
                 activeTab === "equipment"
                   ? "bg-brand-500 text-navy-950 shadow-md shadow-brand-500/20"
@@ -443,7 +458,7 @@ export function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab("promotions")}
+              onClick={() => handleTabClick("promotions")}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all ${
                 activeTab === "promotions"
                   ? "bg-brand-500 text-navy-950 shadow-md shadow-brand-500/20"
@@ -466,7 +481,7 @@ export function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab("tiers")}
+              onClick={() => handleTabClick("tiers")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${
                 activeTab === "tiers"
                   ? "bg-brand-500 text-navy-950 shadow-md shadow-brand-500/20"
@@ -478,7 +493,7 @@ export function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab("categories")}
+              onClick={() => handleTabClick("categories")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${
                 activeTab === "categories"
                   ? "bg-brand-500 text-navy-950 shadow-md shadow-brand-500/20"
@@ -490,7 +505,7 @@ export function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab("branches")}
+              onClick={() => handleTabClick("branches")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${
                 activeTab === "branches"
                   ? "bg-brand-500 text-navy-950 shadow-md shadow-brand-500/20"
@@ -502,7 +517,7 @@ export function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab("leads")}
+              onClick={() => handleTabClick("leads")}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all ${
                 activeTab === "leads"
                   ? "bg-brand-500 text-navy-950 shadow-md shadow-brand-500/20"
@@ -521,7 +536,7 @@ export function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab("settings")}
+              onClick={() => handleTabClick("settings")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${
                 activeTab === "settings"
                   ? "bg-brand-500 text-navy-950 shadow-md shadow-brand-500/20"
@@ -558,9 +573,15 @@ export function AdminDashboard() {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Header */}
-        <header className="h-16 bg-navy-900/60 border-b border-white/10 px-6 flex items-center justify-between backdrop-blur-md sticky top-0 z-20">
+        <header className="h-16 bg-navy-900/60 border-b border-white/10 px-4 md:px-6 flex items-center justify-between backdrop-blur-md sticky top-0 z-20">
           <div className="flex items-center gap-3">
-            <h2 className="text-base font-extrabold text-white capitalize">
+            <button 
+              className="p-2 -ml-2 mr-1 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 md:hidden"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <h2 className="text-sm md:text-base font-extrabold text-white capitalize truncate max-w-[160px] sm:max-w-none">
               {activeTab === "dashboard" && "Сводка сервиса"}
               {activeTab === "equipment" && "Парк техники и инструмента"}
               {activeTab === "promotions" && "Конструктор акций (3+1, 5+2)"}
@@ -1170,6 +1191,17 @@ export function AdminDashboard() {
                         className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (confirm(`Удалить категорию «${cat.nameRu}»?`)) {
+                            await fetch(`/api/categories?id=${cat.id}`, { method: "DELETE" });
+                            fetchAllData();
+                          }
+                        }}
+                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Language } from "@/data/translations";
-import { CATEGORIES, CategoryDefinition } from "@/data/categories";
+import { useData } from "@/context/DataContext";
 import { CategoryIcon } from "./CategoryIcon";
 import {
   ArrowRight,
@@ -19,40 +19,37 @@ interface CategoryShowcaseProps {
 }
 
 export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ language }) => {
-  const [activeTier, setActiveTier] = useState<"all" | "heavy" | "equipment" | "tool">("all");
+  const [activeTier, setActiveTier] = useState<string>("all");
+  const { categories: liveCategories, tiers } = useData();
 
-  const filteredCategories = CATEGORIES.filter((cat) => {
+  const filteredCategories = liveCategories.filter((cat) => {
     if (activeTier === "all") return true;
     return cat.tier === activeTier;
   });
 
-  const tierLabels = {
-    all: language === "kz" ? "Барлығы" : "Все",
-    heavy: language === "kz" ? "Спецтехника" : "Спецтехника",
-    equipment: language === "kz" ? "Жабдықтар" : "Оборудование",
-    tool: language === "kz" ? "Құралдар" : "Инструмент",
-  };
-
-  const getTierBadge = (tier: CategoryDefinition["tier"]) => {
-    switch (tier) {
+  const getTierBadge = (tierId: string) => {
+    const tier = tiers.find(t => t.id === tierId);
+    const label = tier ? (language === "kz" ? tier.nameKz : tier.nameRu) : tierId;
+    
+    switch (tierId) {
       case "heavy":
         return {
-          label: language === "kz" ? "Арнайы техника" : "Спецтехника",
+          label,
           className: "bg-amber-500/10 text-amber-300 border-amber-500/20",
         };
       case "equipment":
         return {
-          label: language === "kz" ? "Жабдық" : "Оборудование",
+          label,
           className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
         };
       case "tool":
         return {
-          label: language === "kz" ? "Құрал" : "Инструмент",
+          label,
           className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
         };
       default:
         return {
-          label: tier,
+          label,
           className: "bg-brand-500/10 text-brand-300 border-brand-500/20",
         };
     }
@@ -105,57 +102,28 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ language }) 
               }`}
             >
               <Grid3X3 className="w-4 h-4" />
-              <span>{tierLabels.all}</span>
-              <span className="text-[11px] opacity-75 font-normal">({CATEGORIES.length})</span>
+              <span>{language === "kz" ? "Барлығы" : "Все"}</span>
+              <span className="text-[11px] opacity-75 font-normal">({liveCategories.length})</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => setActiveTier("heavy")}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                activeTier === "heavy"
-                  ? "bg-brand-500 text-navy-950 font-bold shadow-md shadow-brand-500/20"
-                  : "text-slate-300 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Truck className="w-4 h-4" />
-              <span>{tierLabels.heavy}</span>
-              <span className="text-[11px] opacity-75 font-normal">
-                ({CATEGORIES.filter((c) => c.tier === "heavy").length})
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTier("equipment")}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                activeTier === "equipment"
-                  ? "bg-brand-500 text-navy-950 font-bold shadow-md shadow-brand-500/20"
-                  : "text-slate-300 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Cog className="w-4 h-4" />
-              <span>{tierLabels.equipment}</span>
-              <span className="text-[11px] opacity-75 font-normal">
-                ({CATEGORIES.filter((c) => c.tier === "equipment").length})
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTier("tool")}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                activeTier === "tool"
-                  ? "bg-brand-500 text-navy-950 font-bold shadow-md shadow-brand-500/20"
-                  : "text-slate-300 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Wrench className="w-4 h-4" />
-              <span>{tierLabels.tool}</span>
-              <span className="text-[11px] opacity-75 font-normal">
-                ({CATEGORIES.filter((c) => c.tier === "tool").length})
-              </span>
-            </button>
+            {tiers.map((tier) => (
+              <button
+                key={tier.id}
+                type="button"
+                onClick={() => setActiveTier(tier.id)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                  activeTier === tier.id
+                    ? "bg-brand-500 text-navy-950 font-bold shadow-md shadow-brand-500/20"
+                    : "text-slate-300 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {tier.id === "heavy" ? <Truck className="w-4 h-4" /> : tier.id === "equipment" ? <Cog className="w-4 h-4" /> : tier.id === "tool" ? <Wrench className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
+                <span>{language === "kz" ? tier.nameKz : tier.nameRu}</span>
+                <span className="text-[11px] opacity-75 font-normal">
+                  ({liveCategories.filter((c) => c.tier === tier.id).length})
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
