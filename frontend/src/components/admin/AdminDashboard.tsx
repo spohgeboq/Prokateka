@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { EquipmentItem, EquipmentTier, Tier } from "@/data/catalog";
 import { CategoryDefinition } from "@/data/categories";
 import { DynamicPromotion, BranchItem, LeadItem, SiteSettings } from "@/lib/db";
-import { parseVideoUrl } from "@/lib/video";
 import {
   LayoutDashboard,
   Wrench,
@@ -1417,61 +1416,12 @@ export function AdminDashboard() {
                     type="text"
                     value={settings.youtubeVideoUrl || ""}
                     onChange={(e) => setSettings({ ...settings, youtubeVideoUrl: e.target.value })}
-                    placeholder="https://youtu.be/... или https://www.youtube.com/watch?v=..."
+                    placeholder="https://www.youtube.com/embed/..."
                     className="w-full px-4 py-2.5 rounded-xl bg-navy-950 border border-white/10 text-white text-sm focus:outline-none focus:border-brand-500"
                   />
-                  
-                  {/* Status & Preview */}
-                  {(() => {
-                    const parsed = parseVideoUrl(settings.youtubeVideoUrl || "");
-                    if (!settings.youtubeVideoUrl?.trim()) {
-                      return (
-                        <span className="text-[11px] text-slate-400 mt-1 block">
-                          Поддерживаются любые ссылки: обычные (youtube.com/watch?v=...), короткие (youtu.be/...), Shorts, Live или код вставки &lt;iframe&gt;.
-                        </span>
-                      );
-                    }
-                    if (parsed.type === "youtube" && parsed.id) {
-                      return (
-                        <div className="mt-3 p-3.5 rounded-xl bg-navy-950 border border-emerald-500/30 space-y-2.5">
-                          <div className="flex items-center justify-between">
-                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              YouTube видео распознано (ID: {parsed.id})
-                            </span>
-                            {parsed.watchUrl && (
-                              <a
-                                href={parsed.watchUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-[11px] text-brand-400 hover:underline"
-                              >
-                                Проверить на YouTube <ExternalLink className="w-3 h-3" />
-                              </a>
-                            )}
-                          </div>
-                          <div className="relative w-full aspect-video max-w-sm rounded-lg overflow-hidden border border-white/10 bg-black">
-                            <iframe
-                              src={`${parsed.embedUrl}?autoplay=0&rel=0`}
-                              title="Предпросмотр видео"
-                              className="absolute inset-0 w-full h-full border-0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                              referrerPolicy="strict-origin-when-cross-origin"
-                              allowFullScreen
-                            />
-                          </div>
-                          <span className="text-[10px] text-slate-400 block">
-                            💡 Подсказка: ссылка автоматически приводится к формату embed при сохранении.
-                          </span>
-                        </div>
-                      );
-                    }
-                    return (
-                      <span className="text-[11px] text-amber-400 mt-1 block">
-                        Не удалось автоматически определить YouTube ID. Проверьте правильность ссылки.
-                      </span>
-                    );
-                  })()}
+                  <span className="text-[11px] text-slate-400 mt-1 block">
+                    Вставьте ссылку на видео в формате embed (например: https://www.youtube.com/embed/yP2RjVf02g4)
+                  </span>
                 </div>
 
                 <div className="pt-4 border-t border-white/10">

@@ -11,11 +11,8 @@ import {
   Star,
   CheckCircle2,
   Building2,
-  ExternalLink,
 } from "lucide-react";
 import { MANAGER_WHATSAPP_NUMBER } from "@/data/catalog";
-import { useData } from "@/context/DataContext";
-import { parseVideoUrl } from "@/lib/video";
 
 interface HeroProps {
   language: Language;
@@ -24,10 +21,44 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ language }) => {
   const t = translations[language];
-  const { settings } = useData();
-  const videoInput = settings?.youtubeVideoUrl || "https://www.youtube.com/embed/yP2RjVf02g4";
-  const parsedVideo = parseVideoUrl(videoInput);
+  const [youtubeUrl, setYoutubeUrl] = useState("https://www.youtube.com/embed/yP2RjVf02g4");
 
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings?.youtubeVideoUrl) {
+          setYoutubeUrl(data.settings.youtubeVideoUrl);
+        }
+      })
+      .catch((err) => console.error("Failed to load settings:", err));
+  }, []);
+
+  const getEmbedUrl = (url: string) => {
+    try {
+      if (!url) return "";
+      if (url.includes("youtube.com/embed/")) return url;
+      
+      let videoId = "";
+      if (url.includes("youtu.be/")) {
+        videoId = url.split("youtu.be/")[1]?.split("?")[0];
+      } else if (url.includes("youtube.com/watch")) {
+        const urlObj = new URL(url);
+        videoId = urlObj.searchParams.get("v") || "";
+      } else if (url.includes("youtube.com/shorts/")) {
+        videoId = url.split("youtube.com/shorts/")[1]?.split("?")[0];
+      }
+      
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+      return url;
+    } catch {
+      return url;
+    }
+  };
+
+  const finalYoutubeUrl = getEmbedUrl(youtubeUrl);
 
   const handleWhatsappClick = (customText?: string) => {
     const text = encodeURIComponent(
@@ -121,41 +152,14 @@ export const Hero: React.FC<HeroProps> = ({ language }) => {
           <div className="lg:col-span-6 relative">
             <div className="relative rounded-3xl overflow-hidden border border-white/15 bg-navy-900/90 shadow-2xl p-5 sm:p-6 backdrop-blur-md transition-all">
               {/* Video Container */}
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4 border border-white/10 bg-black shadow-inner group">
-                {parsedVideo.type === "direct" ? (
-                  <video
-                    src={parsedVideo.embedUrl}
-                    controls
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                ) : (
-                  <iframe
-                    src={
-                      parsedVideo.embedUrl
-                        ? parsedVideo.embedUrl.includes("?")
-                          ? `${parsedVideo.embedUrl}&autoplay=0&rel=0`
-                          : `${parsedVideo.embedUrl}?autoplay=0&rel=0`
-                        : "https://www.youtube.com/embed/yP2RjVf02g4?autoplay=0&rel=0"
-                    }
-                    title="PROkateka - Аренда строительного оборудования"
-                    className="absolute inset-0 w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                  />
-                )}
-                {parsedVideo.watchUrl && (
-                  <a
-                    href={parsedVideo.watchUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute bottom-2.5 right-2.5 z-10 opacity-75 hover:opacity-100 transition-opacity flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-navy-950/90 border border-white/20 text-white text-[11px] font-medium backdrop-blur-md shadow-lg"
-                    title="Открыть оригинал видео"
-                  >
-                    <span>{parsedVideo.type === "youtube" ? "Открыть на YouTube" : "Открыть видео"}</span>
-                    <ExternalLink className="w-3 h-3 text-brand-400" />
-                  </a>
-                )}
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4 border border-white/10 bg-black shadow-inner">
+                <iframe
+                  src={finalYoutubeUrl.includes("?") ? `${finalYoutubeUrl}&autoplay=0&rel=0` : `${finalYoutubeUrl}?autoplay=0&rel=0`}
+                  title="PROkateka - Аренда строительного оборудования"
+                  className="absolute inset-0 w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
               </div>
 
               {/* Text Overlay on Photo -> Text below video */}

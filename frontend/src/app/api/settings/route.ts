@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { readDb, writeDb } from "@/lib/db";
 import { isAuthenticatedAdmin } from "@/lib/auth";
-import { parseVideoUrl } from "@/lib/video";
 
 export const dynamic = "force-dynamic";
 
@@ -26,12 +25,6 @@ export async function PUT(req: Request) {
 
     // Update settings
     if (body.settings) {
-      if (body.settings.youtubeVideoUrl) {
-        const parsed = parseVideoUrl(body.settings.youtubeVideoUrl);
-        if (parsed.embedUrl) {
-          body.settings.youtubeVideoUrl = parsed.embedUrl;
-        }
-      }
       db.settings = { ...db.settings, ...body.settings };
     }
 
