@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 
 function CatalogMain() {
-  const { equipment: liveEquipment, categories: liveCategories, settings, tiers } = useData();
+  const { equipment: liveEquipment, categories: liveCategories, branches: liveBranches, settings, tiers } = useData();
   const { addItem, isInCart, openCart } = useCart();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -46,7 +46,7 @@ function CatalogMain() {
   const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedPowerType, setSelectedPowerType] = useState<"all" | PowerType>("all");
-  const [selectedBranch, setSelectedBranch] = useState<"all" | "rayymbek" | "rozybakiev">("all");
+  const [selectedBranch, setSelectedBranch] = useState<string>("all");
   const [onlyInStock, setOnlyInStock] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<"popular" | "priceAsc" | "priceDesc">("popular");
   const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
@@ -79,6 +79,34 @@ function CatalogMain() {
   const currentCategoryObj = useMemo(() => {
     return categoriesToUse.find((c) => c.id === selectedCategory) || null;
   }, [selectedCategory, categoriesToUse]);
+
+  // Dynamic branch options from Admin/DB
+  const branchOptions = useMemo(() => {
+    const list = [{ id: "all", label: t.catalog.branchAll }];
+    const sourceBranches = liveBranches && liveBranches.length > 0 ? liveBranches : [
+      {
+        id: "astana-bekturova",
+        nameRu: "Склад выдачи Бектурова 4Г",
+        nameKz: "Бектұров 4Г қоймасы",
+        isMain: true,
+      }
+    ];
+
+    const sorted = [...sourceBranches].sort((a, b) => {
+      if (a.isMain || a.id === "astana-bekturova") return -1;
+      if (b.isMain || b.id === "astana-bekturova") return 1;
+      return 0;
+    });
+
+    sorted.forEach((b) => {
+      list.push({
+        id: b.id,
+        label: language === "kz" ? b.nameKz : b.nameRu,
+      });
+    });
+
+    return list;
+  }, [liveBranches, language, t.catalog.branchAll]);
 
   const handleSelectCategory = (catId: string) => {
     setSelectedCategory(catId);
@@ -129,8 +157,11 @@ function CatalogMain() {
       if (selectedPowerType !== "all" && item.powerType !== selectedPowerType) return false;
 
       // Branch
-      if (selectedBranch !== "all" && item.branchId !== "all" && item.branchId !== selectedBranch)
-        return false;
+      if (selectedBranch !== "all") {
+        const itemBId = (item.branchId === "rayymbek" || item.branchId === "rozybakiev") ? "astana-bekturova" : item.branchId;
+        const matchesBranch = !itemBId || itemBId === "all" || itemBId === selectedBranch;
+        if (!matchesBranch) return false;
+      }
 
       // In stock
       if (onlyInStock && !item.inStock) return false;
@@ -354,11 +385,6 @@ function CatalogMain() {
                   <Grid3X3 className="w-4 h-4" />
                   <span>{language === "kz" ? "Барлық каталог" : "Все категории"}</span>
                 </div>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                  selectedCategory === "all" ? "bg-navy-950/20 text-navy-950" : "bg-white/5 text-slate-400"
-                }`}>
-                  {itemsToUse.length}
-                </span>
               </button>
 
               {tiers.map((tier) => {
@@ -385,15 +411,12 @@ function CatalogMain() {
                                 : "text-slate-300 hover:bg-navy-800 hover:text-white"
                             }`}
                           >
-                            <div className="flex items-center gap-2 truncate pr-2">
+                            <div className="flex items-center gap-2 truncate">
                               <CategoryIcon name={c.iconName} className={`w-3.5 h-3.5 flex-shrink-0 ${
                                 isSelected ? "text-brand-400" : "text-slate-400"
                               }`} />
                               <span className="truncate">{name}</span>
                             </div>
-                            <span className="text-[10px] text-slate-400 flex-shrink-0">
-                              {c.itemCount}
-                            </span>
                           </button>
                         );
                       })}
@@ -458,14 +481,10 @@ function CatalogMain() {
                   {t.catalog.filterBranch}
                 </label>
                 <div className="space-y-1 text-xs">
-                  {[
-                    { id: "all", label: t.catalog.branchAll },
-                    { id: "rayymbek", label: t.catalog.branchRayymbek },
-                    { id: "rozybakiev", label: t.catalog.branchRozybakiev },
-                  ].map((branch) => (
+                  {branchOptions.map((branch) => (
                     <button
                       key={branch.id}
-                      onClick={() => setSelectedBranch(branch.id as any)}
+                      onClick={() => setSelectedBranch(branch.id)}
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between ${
                         selectedBranch === branch.id
                           ? "bg-brand-500/10 text-brand-400 font-bold"

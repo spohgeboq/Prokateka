@@ -40,8 +40,16 @@ export const BranchesSection: React.FC<BranchesSectionProps> = ({ language }) =>
     },
   ];
 
-  const branchesToRender = liveBranches && liveBranches.length > 0
-    ? liveBranches.map((b, idx) => ({
+  const sortedLiveBranches = liveBranches && liveBranches.length > 0
+    ? [...liveBranches].sort((a, b) => {
+        if (a.isMain || a.id === "astana-bekturova") return -1;
+        if (b.isMain || b.id === "astana-bekturova") return 1;
+        return 0;
+      })
+    : [];
+
+  const branchesToRender = sortedLiveBranches.length > 0
+    ? sortedLiveBranches.map((b, idx) => ({
         id: b.id,
         name: b.nameRu,
         nameKz: b.nameKz,
