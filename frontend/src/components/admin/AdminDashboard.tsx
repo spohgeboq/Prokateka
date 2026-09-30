@@ -84,9 +84,11 @@ export function AdminDashboard() {
   const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
   const [editingPromo, setEditingPromo] = useState<DynamicPromotion | null>(null);
 
-  // Category modal
+  // Category modal & search/filter
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
   const [editingCat, setEditingCat] = useState<CategoryDefinition | null>(null);
+  const [catSearch, setCatSearch] = useState("");
+  const [catTierFilter, setCatTierFilter] = useState<string>("all");
 
   // Tier modal
   const [isTierModalOpen, setIsTierModalOpen] = useState(false);
@@ -1204,83 +1206,243 @@ export function AdminDashboard() {
           {/* ========================================================
               TAB 4: CATEGORIES
              ======================================================== */}
-          {activeTab === "categories" && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-slate-400">
-                  Управление рубрикатором сайта. Вы можете изменять названия и порядок категорий.
-                </p>
-                <button
-                  onClick={() => {
-                    setEditingCat({
-                      id: `cat-${Date.now()}`,
-                      nameRu: "",
-                      nameKz: "",
-                      tier: "tool",
-                      iconName: "Wrench",
-                      itemCount: 0,
-                      startPrice: 3000,
-                      priceUnitRu: "сутки",
-                      priceUnitKz: "тәулік",
-                      descriptionRu: "",
-                      descriptionKz: "",
-                    });
-                    setIsCatModalOpen(true);
-                  }}
-                  className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-navy-950 font-bold px-4 py-2 rounded-xl text-xs transition-all"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Добавить категорию</span>
-                </button>
-              </div>
+          {activeTab === "categories" && (() => {
+            const filteredCategories = categories.filter((cat) => {
+              const matchesTier = catTierFilter === "all" || cat.tier === catTierFilter;
+              const q = catSearch.trim().toLowerCase();
+              const matchesSearch =
+                !q ||
+                cat.nameRu.toLowerCase().includes(q) ||
+                (cat.nameKz && cat.nameKz.toLowerCase().includes(q)) ||
+                cat.id.toLowerCase().includes(q) ||
+                cat.tier.toLowerCase().includes(q);
+              return matchesTier && matchesSearch;
+            });
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {categories.map((cat) => (
-                  <div key={cat.id} className="p-4 rounded-xl bg-navy-900 border border-white/10 flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] text-brand-400 font-bold uppercase block mb-1">
-                        Раздел: {cat.tier}
+            return (
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-bold text-white flex items-center gap-2">
+                      <span>Категории каталога</span>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-extrabold border border-brand-500/30">
+                        {categories.length}
                       </span>
-                      <h4 className="text-sm font-bold text-white mb-0.5">{cat.nameRu}</h4>
-                      <p className="text-xs text-slate-400">KZ: {cat.nameKz}</p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => {
-                          setEditingCat({ ...cat });
-                          setIsCatModalOpen(true);
-                        }}
-                        className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={async () => {
-                          if (confirm(`Удалить категорию «${cat.nameRu}»?`)) {
-                            await fetch(`/api/categories?id=${cat.id}`, { method: "DELETE" });
-                            fetchAllData();
-                          }
-                        }}
-                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Управление рубрикатором сайта. Вы можете добавлять любое количество категорий (до 99+).
+                    </p>
                   </div>
-                ))}
+                  <button
+                    onClick={() => {
+                      setEditingCat({
+                        id: `cat-${Date.now()}`,
+                        nameRu: "",
+                        nameKz: "",
+                        tier: tiers[0]?.id || "tool",
+                        iconName: "Wrench",
+                        itemCount: 0,
+                        startPrice: 3000,
+                        priceUnitRu: "сутки",
+                        priceUnitKz: "тәулік",
+                        descriptionRu: "",
+                        descriptionKz: "",
+                      });
+                      setIsCatModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-navy-950 font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md shadow-brand-500/20 self-start sm:self-auto"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Добавить категорию</span>
+                  </button>
+                </div>
+
+                {/* Search & Tier Filters Bar */}
+                <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between bg-navy-900/80 border border-white/10 p-3 rounded-2xl">
+                  {/* Search input */}
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={catSearch}
+                      onChange={(e) => setCatSearch(e.target.value)}
+                      placeholder="Быстрый поиск категории по названию или разделу..."
+                      className="w-full pl-9 pr-8 py-2 bg-navy-950 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                    />
+                    {catSearch && (
+                      <button
+                        onClick={() => setCatSearch("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Tier filter pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
+                    <button
+                      onClick={() => setCatTierFilter("all")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+                        catTierFilter === "all"
+                          ? "bg-brand-500 text-navy-950 font-bold shadow-sm"
+                          : "bg-navy-800 text-slate-300 hover:bg-navy-700"
+                      }`}
+                    >
+                      Все ({categories.length})
+                    </button>
+                    {tiers.map((t) => {
+                      const countInTier = categories.filter((c) => c.tier === t.id).length;
+                      return (
+                        <button
+                          key={t.id}
+                          onClick={() => setCatTierFilter(t.id)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+                            catTierFilter === t.id
+                              ? "bg-brand-500 text-navy-950 font-bold shadow-sm"
+                              : "bg-navy-800 text-slate-300 hover:bg-navy-700"
+                          }`}
+                        >
+                          {t.nameRu} ({countInTier})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Count summary */}
+                <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+                  <span>
+                    Показано <strong className="text-white">{filteredCategories.length}</strong> из <strong className="text-white">{categories.length}</strong> категорий (поддерживается до 99+ категорий)
+                  </span>
+                  {catSearch && (
+                    <span className="text-amber-400">
+                      Результаты поиска по запросу «{catSearch}»
+                    </span>
+                  )}
+                </div>
+
+                {/* Categories Grid */}
+                {filteredCategories.length === 0 ? (
+                  <div className="p-12 text-center bg-navy-900/60 border border-white/10 rounded-2xl space-y-3">
+                    <Layers className="w-10 h-10 text-slate-600 mx-auto" />
+                    <p className="text-sm font-semibold text-slate-300">Категории не найдены</p>
+                    <p className="text-xs text-slate-500">Попробуйте изменить поисковый запрос или выбрать другой раздел</p>
+                    <button
+                      onClick={() => {
+                        setCatSearch("");
+                        setCatTierFilter("all");
+                      }}
+                      className="px-4 py-1.5 rounded-xl bg-navy-800 text-slate-300 text-xs hover:text-white"
+                    >
+                      Сбросить фильтры
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredCategories.map((cat) => {
+                      const tierObj = tiers.find((t) => t.id === cat.tier);
+                      const tierName = tierObj ? tierObj.nameRu : cat.tier;
+                      const countEquipment = equipment.filter(
+                        (e) => e.categoryId === cat.id || e.category === cat.nameRu
+                      ).length;
+
+                      return (
+                        <div
+                          key={cat.id}
+                          className="p-4 rounded-xl bg-navy-900 border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between space-y-3"
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="flex items-start gap-3 min-w-0">
+                              <div className="w-9 h-9 rounded-xl bg-navy-800 border border-white/5 flex items-center justify-center text-brand-400 flex-shrink-0">
+                                <CategoryIcon name={cat.iconName || "Wrench"} className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider block mb-0.5 truncate">
+                                  {tierName}
+                                </span>
+                                <h4 className="text-sm font-bold text-white truncate" title={cat.nameRu}>
+                                  {cat.nameRu}
+                                </h4>
+                                {cat.nameKz && (
+                                  <p className="text-xs text-slate-400 truncate" title={cat.nameKz}>
+                                    KZ: {cat.nameKz}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <button
+                                onClick={() => {
+                                  setEditingCat({ ...cat });
+                                  setIsCatModalOpen(true);
+                                }}
+                                className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-white transition-colors"
+                                title="Редактировать категорию"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (confirm(`Вы действительно хотите удалить категорию «${cat.nameRu}»?`)) {
+                                    setSaving(true);
+                                    try {
+                                      const res = await fetch(`/api/categories?id=${cat.id}`, { method: "DELETE" });
+                                      if (res.ok) {
+                                        showToast("Категория удалена");
+                                        await fetchAllData();
+                                      } else {
+                                        showToast("Не удалось удалить категорию");
+                                      }
+                                    } catch {
+                                      showToast("Ошибка сети при удалении");
+                                    } finally {
+                                      setSaving(false);
+                                    }
+                                  }
+                                }}
+                                className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                                title="Удалить категорию"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+                            <span className="flex items-center gap-1.5">
+                              <span className={`w-1.5 h-1.5 rounded-full ${countEquipment > 0 ? "bg-emerald-400" : "bg-slate-500"}`} />
+                              <span>{countEquipment} {countEquipment === 1 ? "товар" : "товаров"}</span>
+                            </span>
+                            <span className="text-slate-500 font-mono text-[10px]">ID: {cat.id}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ========================================================
               TAB 5: BRANCHES & 2GIS
              ======================================================== */}
           {activeTab === "branches" && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-slate-400">
-                  Филиалы, склады выдачи и ссылки на 2GIS карточки.
-                </p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span>Филиалы и склады</span>
+                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-extrabold border border-brand-500/30">
+                      {branches.length}
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Управление складами выдачи, пунктами самовывоза и ссылками на 2GIS карточки.
+                  </p>
+                </div>
                 <button
                   onClick={() => {
                     setEditingBranch({
@@ -1297,7 +1459,7 @@ export function AdminDashboard() {
                     });
                     setIsBranchModalOpen(true);
                   }}
-                  className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-navy-950 font-bold px-4 py-2 rounded-xl text-xs transition-all"
+                  className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-navy-950 font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md shadow-brand-500/20 self-start sm:self-auto"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Добавить филиал</span>
@@ -1306,31 +1468,58 @@ export function AdminDashboard() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {branches.map((b) => (
-                  <div key={b.id} className="p-5 rounded-2xl bg-navy-900 border border-white/10 space-y-3">
-                    <div className="flex justify-between items-start">
+                  <div key={b.id} className="p-5 rounded-2xl bg-navy-900 border border-white/10 hover:border-white/20 transition-all space-y-3">
+                    <div className="flex justify-between items-start gap-2">
                       <div>
-                        <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider block">
-                          {b.isMain ? "Основной филиал" : "Дополнительный склад"}
+                        <span className={`text-[10px] font-bold uppercase tracking-wider block mb-1 ${b.isMain ? "text-brand-400" : "text-sky-400"}`}>
+                          {b.isMain ? "★ Основной филиал" : "Дополнительный склад"}
                         </span>
                         <h4 className="text-base font-bold text-white">{b.nameRu}</h4>
+                        {b.nameKz && <p className="text-xs text-slate-400">KZ: {b.nameKz}</p>}
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
                         <button
                           onClick={() => {
                             setEditingBranch({ ...b });
                             setIsBranchModalOpen(true);
                           }}
-                          className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300"
+                          className="p-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-white transition-colors"
+                          title="Редактировать филиал"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (confirm(`Вы уверены, что хотите удалить филиал «${b.nameRu}»?`)) {
+                              setSaving(true);
+                              try {
+                                const res = await fetch(`/api/branches?id=${b.id}`, { method: "DELETE" });
+                                if (res.ok) {
+                                  showToast("Филиал успешно удален");
+                                  await fetchAllData();
+                                } else {
+                                  showToast("Ошибка при удалении филиала");
+                                }
+                              } catch {
+                                showToast("Ошибка сети при удалении");
+                              } finally {
+                                setSaving(false);
+                              }
+                            }
+                          }}
+                          className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                          title="Удалить филиал"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
 
                     <div className="text-xs text-slate-300 space-y-1">
-                      <div>Адрес: {b.addressRu}</div>
-                      <div>Телефон: {b.phone}</div>
-                      <div>Режим: {b.workingHoursRu}</div>
+                      <div><strong className="text-slate-400">Адрес:</strong> {b.addressRu}</div>
+                      {b.addressKz && <div className="text-slate-400"><strong className="text-slate-500">Мекенжай:</strong> {b.addressKz}</div>}
+                      <div><strong className="text-slate-400">Телефон:</strong> {b.phone}</div>
+                      <div><strong className="text-slate-400">Режим:</strong> {b.workingHoursRu}</div>
                     </div>
 
                     <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
@@ -1343,6 +1532,7 @@ export function AdminDashboard() {
                         <span>Проверить в 2GIS</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
+                      <span className="text-[10px] text-slate-500 font-mono">ID: {b.id}</span>
                     </div>
                   </div>
                 ))}
@@ -2159,8 +2349,10 @@ export function AdminDashboard() {
          ======================================================== */}
       {isCatModalOpen && editingCat && (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 bg-navy-950/80 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-md bg-navy-900 border border-white/10 rounded-2xl p-6 shadow-2xl my-8 sm:my-12">
-            <h3 className="text-base font-bold text-white mb-3">Категория каталога</h3>
+          <div className="relative w-full max-w-lg bg-navy-900 border border-white/10 rounded-2xl p-6 shadow-2xl my-8 sm:my-12">
+            <h3 className="text-base font-bold text-white mb-3">
+              {categories.some((c) => c.id === editingCat.id) ? "Редактировать категорию" : "Добавить категорию"}
+            </h3>
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -2176,54 +2368,131 @@ export function AdminDashboard() {
                 setSaving(false);
                 showToast("Категория сохранена!");
               }}
-              className="space-y-3 text-xs"
+              className="space-y-3.5 text-xs"
             >
-              <div>
-                <label className="block text-slate-300 mb-1">Название (RU)</label>
-                <input
-                  type="text"
-                  required
-                  value={editingCat.nameRu}
-                  onChange={(e) => setEditingCat({ ...editingCat, nameRu: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1">Название (RU) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingCat.nameRu}
+                    onChange={(e) => setEditingCat({ ...editingCat, nameRu: e.target.value })}
+                    placeholder="Виброплиты и трамбовки"
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">Название (KZ)</label>
+                  <input
+                    type="text"
+                    value={editingCat.nameKz}
+                    onChange={(e) => setEditingCat({ ...editingCat, nameKz: e.target.value })}
+                    placeholder="Дірілдеткіштер және нығыздау"
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
+                  />
+                </div>
               </div>
+
               <div>
-                <label className="block text-slate-300 mb-1">Название (KZ)</label>
-                <input
-                  type="text"
-                  value={editingCat.nameKz}
-                  onChange={(e) => setEditingCat({ ...editingCat, nameKz: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 mb-1">Раздел</label>
+                <label className="block text-slate-300 mb-1">Раздел каталога (Tier) *</label>
                 <select
                   value={editingCat.tier}
                   onChange={(e) => setEditingCat({ ...editingCat, tier: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
+                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white focus:outline-none focus:border-brand-500"
                 >
                   {tiers.map((t) => (
-                    <option key={t.id} value={t.id}>{t.nameRu}</option>
+                    <option key={t.id} value={t.id}>
+                      {t.nameRu} ({t.id})
+                    </option>
                   ))}
                 </select>
               </div>
-              <div className="flex justify-end gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsCatModalOpen(false)}
-                  className="px-3 py-1.5 rounded-lg bg-navy-800 text-slate-300"
-                >
-                  Отмена
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-4 py-1.5 rounded-lg bg-brand-500 font-bold text-navy-950"
-                >
-                  Сохранить
-                </button>
+
+              {/* Icon Picker */}
+              <div>
+                <label className="block text-slate-300 mb-1">
+                  Иконка категории (выбрано: <strong className="text-brand-400">{editingCat.iconName || "Wrench"}</strong>)
+                </label>
+                <div className="grid grid-cols-6 sm:grid-cols-9 gap-1.5 p-2 bg-navy-950 border border-white/10 rounded-xl max-h-36 overflow-y-auto">
+                  {[
+                    "Wrench", "Truck", "Cog", "Layers", "Hammer", "Zap",
+                    "Flame", "Building2", "Scissors", "Disc", "Compass",
+                    "ShieldCheck", "Cpu", "HardHat", "Drill", "Sparkles",
+                    "Package", "Scale"
+                  ].map((icon) => {
+                    const isSelected = (editingCat.iconName || "Wrench") === icon;
+                    return (
+                      <button
+                        key={icon}
+                        type="button"
+                        onClick={() => setEditingCat({ ...editingCat, iconName: icon })}
+                        className={`p-2 rounded-lg flex flex-col items-center justify-center transition-all ${
+                          isSelected
+                            ? "bg-brand-500 text-navy-950 font-bold scale-105 shadow-sm"
+                            : "bg-navy-900 text-slate-400 hover:text-white hover:bg-navy-800"
+                        }`}
+                        title={icon}
+                      >
+                        <CategoryIcon name={icon} className="w-4 h-4" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Card Preview */}
+              <div className="p-3 rounded-xl bg-navy-950/70 border border-white/10 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-navy-800 border border-white/5 flex items-center justify-center text-brand-400 flex-shrink-0">
+                  <CategoryIcon name={editingCat.iconName || "Wrench"} className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] text-brand-400 font-bold uppercase tracking-wider">
+                    {tiers.find((t) => t.id === editingCat.tier)?.nameRu || editingCat.tier}
+                  </div>
+                  <div className="text-xs font-bold text-white truncate">
+                    {editingCat.nameRu || "Название категории"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex justify-between items-center gap-2 pt-3 border-t border-white/10">
+                {categories.some((c) => c.id === editingCat.id) ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (confirm(`Удалить категорию «${editingCat.nameRu}»?`)) {
+                        setSaving(true);
+                        await fetch(`/api/categories?id=${editingCat.id}`, { method: "DELETE" });
+                        await fetchAllData();
+                        setIsCatModalOpen(false);
+                        setSaving(false);
+                        showToast("Категория удалена");
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 font-medium transition-colors"
+                  >
+                    Удалить категорию
+                  </button>
+                ) : <div />}
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsCatModalOpen(false)}
+                    className="px-3.5 py-1.5 rounded-lg bg-navy-800 text-slate-300 hover:bg-navy-700 transition-colors"
+                  >
+                    Отмена
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving || !editingCat.nameRu.trim()}
+                    className="px-4 py-1.5 rounded-lg bg-brand-500 font-bold text-navy-950 hover:bg-brand-400 disabled:opacity-50 transition-colors"
+                  >
+                    Сохранить
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -2235,8 +2504,10 @@ export function AdminDashboard() {
          ======================================================== */}
       {isBranchModalOpen && editingBranch && (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 bg-navy-950/80 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-md bg-navy-900 border border-white/10 rounded-2xl p-6 shadow-2xl my-8 sm:my-12">
-            <h3 className="text-base font-bold text-white mb-3">Филиал / Склад выдачи</h3>
+          <div className="relative w-full max-w-lg bg-navy-900 border border-white/10 rounded-2xl p-6 shadow-2xl my-8 sm:my-12">
+            <h3 className="text-base font-bold text-white mb-3">
+              {branches.some((b) => b.id === editingBranch.id) ? "Редактировать филиал" : "Добавить новый филиал"}
+            </h3>
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -2252,63 +2523,149 @@ export function AdminDashboard() {
                 setSaving(false);
                 showToast("Филиал сохранен!");
               }}
-              className="space-y-3 text-xs"
+              className="space-y-3.5 text-xs"
             >
-              <div>
-                <label className="block text-slate-300 mb-1">Название филиала (RU)</label>
-                <input
-                  type="text"
-                  required
-                  value={editingBranch.nameRu}
-                  onChange={(e) => setEditingBranch({ ...editingBranch, nameRu: e.target.value })}
-                  placeholder="Склад выдачи Бектурова 4Г"
-                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1">Название филиала (RU) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingBranch.nameRu}
+                    onChange={(e) => setEditingBranch({ ...editingBranch, nameRu: e.target.value })}
+                    placeholder="Склад выдачи Бектурова 4Г"
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">Название филиала (KZ)</label>
+                  <input
+                    type="text"
+                    value={editingBranch.nameKz}
+                    onChange={(e) => setEditingBranch({ ...editingBranch, nameKz: e.target.value })}
+                    placeholder="Бектұров 4Г беру қоймасы"
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-slate-300 mb-1">Адрес (RU)</label>
-                <input
-                  type="text"
-                  required
-                  value={editingBranch.addressRu}
-                  onChange={(e) => setEditingBranch({ ...editingBranch, addressRu: e.target.value })}
-                  placeholder="г. Астана, ул. Абикена Бектурова, 4Г"
-                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
-                />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1">Адрес (RU) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingBranch.addressRu}
+                    onChange={(e) => setEditingBranch({ ...editingBranch, addressRu: e.target.value })}
+                    placeholder="г. Астана, ул. Абикена Бектурова, 4Г"
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">Адрес (KZ)</label>
+                  <input
+                    type="text"
+                    value={editingBranch.addressKz}
+                    onChange={(e) => setEditingBranch({ ...editingBranch, addressKz: e.target.value })}
+                    placeholder="Астана қ., Әбікен Бектұров к-сі, 4Г"
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
+                  />
+                </div>
               </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1">Телефон филиала</label>
+                  <input
+                    type="text"
+                    value={editingBranch.phone}
+                    onChange={(e) => setEditingBranch({ ...editingBranch, phone: e.target.value })}
+                    placeholder="+7 705 503 6772"
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">Режим работы (RU)</label>
+                  <input
+                    type="text"
+                    value={editingBranch.workingHoursRu}
+                    onChange={(e) => setEditingBranch({ ...editingBranch, workingHoursRu: e.target.value })}
+                    placeholder="Ежедневно: 08:00 – 20:00"
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-300 mb-1">Ссылка на карточку в 2GIS</label>
                 <input
                   type="text"
                   value={editingBranch.gisLink}
                   onChange={(e) => setEditingBranch({ ...editingBranch, gisLink: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
+                  placeholder="https://2gis.kz/astana/geo/..."
+                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
                 />
               </div>
-              <div>
-                <label className="block text-slate-300 mb-1">Телефон филиала</label>
-                <input
-                  type="text"
-                  value={editingBranch.phone}
-                  onChange={(e) => setEditingBranch({ ...editingBranch, phone: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-white/10 text-white"
-                />
+
+              <div className="pt-1">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={editingBranch.isMain}
+                    onChange={(e) => setEditingBranch({ ...editingBranch, isMain: e.target.checked })}
+                    className="w-4 h-4 rounded text-brand-500 bg-navy-950 border-white/20 focus:ring-brand-500"
+                  />
+                  <span className="text-slate-200 font-semibold text-xs">
+                    ★ Сделать основным филиалом (отображается в верхней карточке на сайте)
+                  </span>
+                </label>
               </div>
-              <div className="flex justify-end gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsBranchModalOpen(false)}
-                  className="px-3 py-1.5 rounded-lg bg-navy-800 text-slate-300"
-                >
-                  Отмена
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-4 py-1.5 rounded-lg bg-brand-500 font-bold text-navy-950"
-                >
-                  Сохранить
-                </button>
+
+              <div className="flex justify-between items-center gap-2 pt-4 border-t border-white/10">
+                {branches.some((b) => b.id === editingBranch.id) ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (confirm(`Вы уверены, что хотите удалить филиал «${editingBranch.nameRu}»?`)) {
+                        setSaving(true);
+                        try {
+                          const res = await fetch(`/api/branches?id=${editingBranch.id}`, { method: "DELETE" });
+                          if (res.ok) {
+                            showToast("Филиал успешно удален");
+                            await fetchAllData();
+                            setIsBranchModalOpen(false);
+                          } else {
+                            showToast("Ошибка при удалении филиала");
+                          }
+                        } catch {
+                          showToast("Ошибка соединения");
+                        } finally {
+                          setSaving(false);
+                        }
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 font-medium transition-colors"
+                  >
+                    Удалить филиал
+                  </button>
+                ) : <div />}
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsBranchModalOpen(false)}
+                    className="px-3.5 py-1.5 rounded-lg bg-navy-800 text-slate-300 hover:bg-navy-700 transition-colors"
+                  >
+                    Отмена
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving || !editingBranch.nameRu.trim() || !editingBranch.addressRu.trim()}
+                    className="px-4 py-1.5 rounded-lg bg-brand-500 font-bold text-navy-950 hover:bg-brand-400 disabled:opacity-50 transition-colors"
+                  >
+                    Сохранить
+                  </button>
+                </div>
               </div>
             </form>
           </div>

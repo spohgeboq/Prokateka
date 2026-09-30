@@ -50,6 +50,7 @@ function CatalogMain() {
   const [onlyInStock, setOnlyInStock] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<"popular" | "priceAsc" | "priceDesc">("popular");
   const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
+  const [sidebarCatSearch, setSidebarCatSearch] = useState<string>("");
 
   // Sync category and search query from URL params
   useEffect(() => {
@@ -74,6 +75,16 @@ function CatalogMain() {
 
   const categoriesToUse = liveCategories && liveCategories.length > 0 ? liveCategories : CATEGORIES;
   const itemsToUse = liveEquipment && liveEquipment.length > 0 ? liveEquipment : CATALOG_ITEMS;
+
+  const searchedCategories = useMemo(() => {
+    if (!sidebarCatSearch.trim()) return categoriesToUse;
+    const q = sidebarCatSearch.toLowerCase().trim();
+    return categoriesToUse.filter((c) =>
+      c.nameRu.toLowerCase().includes(q) ||
+      (c.nameKz && c.nameKz.toLowerCase().includes(q)) ||
+      c.id.toLowerCase().includes(q)
+    );
+  }, [categoriesToUse, sidebarCatSearch]);
 
   // Active category object if filtered
   const currentCategoryObj = useMemo(() => {
@@ -378,6 +389,28 @@ function CatalogMain() {
                 )}
               </div>
 
+              {/* Quick Search if more than 6 categories */}
+              {categoriesToUse.length > 6 && (
+                <div className="relative mb-3">
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={sidebarCatSearch}
+                    onChange={(e) => setSidebarCatSearch(e.target.value)}
+                    placeholder={language === "kz" ? "Санатты іздеу..." : "Поиск по категориям..."}
+                    className="w-full pl-8 pr-7 py-1.5 bg-navy-950 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                  />
+                  {sidebarCatSearch && (
+                    <button
+                      onClick={() => setSidebarCatSearch("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* All Categories Item */}
               <button
                 type="button"
@@ -392,45 +425,99 @@ function CatalogMain() {
                   <Grid3X3 className="w-4 h-4" />
                   <span>{language === "kz" ? "Барлық каталог" : "Все категории"}</span>
                 </div>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${selectedCategory === "all" ? "bg-navy-950/20 text-navy-950 font-bold" : "bg-navy-800 text-slate-400"}`}>
+                  {categoriesToUse.length}
+                </span>
               </button>
 
-              {tiers.map((tier) => {
-                const tierCats = categoriesToUse.filter((c) => c.tier === tier.id);
-                // Removed condition: always show the tier even if empty
-                return (
-                  <div key={tier.id} className="mb-4">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-brand-400/90 px-3 py-1 flex items-center gap-1.5 mb-1">
-                      <CategoryIcon name={tier.iconName || (tier.id === "heavy" ? "Truck" : tier.id === "equipment" ? "Cog" : tier.id === "tool" ? "Wrench" : "Layers")} className="w-3.5 h-3.5" />
-                      <span>{language === "kz" ? tier.nameKz : tier.nameRu}</span>
+              {/* Scrollable container for up to 99+ categories */}
+              <div className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto pr-1 no-scrollbar">
+                {tiers.map((tier) => {
+                  const tierCats = searchedCategories.filter((c) => c.tier === tier.id);
+                  if (sidebarCatSearch && tierCats.length === 0) return null;
+
+                  return (
+                    <div key={tier.id} className="mb-2">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-brand-400/90 px-3 py-1 flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <CategoryIcon name={tier.iconName || (tier.id === "heavy" ? "Truck" : tier.id === "equipment" ? "Cog" : tier.id === "tool" ? "Wrench" : "Layers")} className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span className="truncate">{language === "kz" ? tier.nameKz : tier.nameRu}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-semibold">{tierCats.length}</span>
+                      </div>
+                      <div className="space-y-0.5">
+                        {tierCats.map((c) => {
+                          const isSelected = selectedCategory === c.id;
+                          const name = language === "kz" ? c.nameKz : c.nameRu;
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => handleSelectCategory(c.id)}
+                              className={`w-full text-left px-3 py-2 rounded-xl transition-all flex items-center justify-between text-xs ${
+                                isSelected
+                                  ? "bg-brand-500/20 text-brand-300 font-bold border-l-2 border-brand-500"
+                                  : "text-slate-300 hover:bg-navy-800 hover:text-white"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 truncate">
+                                <CategoryIcon name={c.iconName} className={`w-3.5 h-3.5 flex-shrink-0 ${
+                                  isSelected ? "text-brand-400" : "text-slate-400"
+                                }`} />
+                                <span className="truncate">{name}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="space-y-0.5">
-                      {tierCats.map((c) => {
-                        const isSelected = selectedCategory === c.id;
-                        const name = language === "kz" ? c.nameKz : c.nameRu;
-                        return (
-                          <button
-                            key={c.id}
-                            type="button"
-                            onClick={() => handleSelectCategory(c.id)}
-                            className={`w-full text-left px-3 py-2 rounded-xl transition-all flex items-center justify-between text-xs ${
-                              isSelected
-                                ? "bg-brand-500/20 text-brand-300 font-bold border-l-2 border-brand-500"
-                                : "text-slate-300 hover:bg-navy-800 hover:text-white"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 truncate">
-                              <CategoryIcon name={c.iconName} className={`w-3.5 h-3.5 flex-shrink-0 ${
-                                isSelected ? "text-brand-400" : "text-slate-400"
-                              }`} />
-                              <span className="truncate">{name}</span>
-                            </div>
-                          </button>
-                        );
-                      })}
+                  );
+                })}
+
+                {/* Orphaned categories if any tier doesn't match known tiers */}
+                {(() => {
+                  const knownTierIds = new Set(tiers.map((t) => t.id));
+                  const orphanedCats = searchedCategories.filter((c) => !knownTierIds.has(c.tier));
+                  if (orphanedCats.length === 0) return null;
+
+                  return (
+                    <div className="mb-2">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-brand-400/90 px-3 py-1 flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <CategoryIcon name="Layers" className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>{language === "kz" ? "Қосымша санаттар" : "Дополнительные категории"}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-semibold">{orphanedCats.length}</span>
+                      </div>
+                      <div className="space-y-0.5">
+                        {orphanedCats.map((c) => {
+                          const isSelected = selectedCategory === c.id;
+                          const name = language === "kz" ? c.nameKz : c.nameRu;
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => handleSelectCategory(c.id)}
+                              className={`w-full text-left px-3 py-2 rounded-xl transition-all flex items-center justify-between text-xs ${
+                                isSelected
+                                  ? "bg-brand-500/20 text-brand-300 font-bold border-l-2 border-brand-500"
+                                  : "text-slate-300 hover:bg-navy-800 hover:text-white"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 truncate">
+                                <CategoryIcon name={c.iconName} className={`w-3.5 h-3.5 flex-shrink-0 ${
+                                  isSelected ? "text-brand-400" : "text-slate-400"
+                                }`} />
+                                <span className="truncate">{name}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })()}
+              </div>
             </div>
 
             {/* Additional Filters Box (Availability, Power, Branch) */}
