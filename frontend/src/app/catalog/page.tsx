@@ -363,7 +363,7 @@ function CatalogMain() {
 
               {tiers.map((tier) => {
                 const tierCats = categoriesToUse.filter((c) => c.tier === tier.id);
-                if (tierCats.length === 0) return null;
+                // Removed condition: always show the tier even if empty
                 return (
                   <div key={tier.id} className="mb-4">
                     <div className="text-[11px] font-bold uppercase tracking-wider text-brand-400/90 px-3 py-1 flex items-center gap-1.5 mb-1">

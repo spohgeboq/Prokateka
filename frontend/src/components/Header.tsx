@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCart,
 }) => {
   const { cartCount: globalCartCount, openCart } = useCart();
-  const { settings } = useData();
+  const { settings, categories: liveCategories, tiers } = useData();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [catalogMegaMenuOpen, setCatalogMegaMenuOpen] = useState(false);
@@ -92,9 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
     { href: "/branches", label: t.header.branches, icon: <MapPin className="w-4 h-4" /> },
   ];
 
-  const heavyCategories = CATEGORIES.filter((c) => c.tier === "heavy");
-  const equipmentCategories = CATEGORIES.filter((c) => c.tier === "equipment");
-  const toolCategories = CATEGORIES.filter((c) => c.tier === "tool");
+  // The categories are now pulled dynamically from useData()
 
   const handleMouseEnterCatalog = () => {
     if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current);
@@ -295,96 +293,40 @@ export const Header: React.FC<HeaderProps> = ({
           onMouseLeave={handleMouseLeaveCatalog}
         >
           <div className="max-w-7xl mx-auto px-6 py-6">
-            <div className="grid grid-cols-3 gap-8">
-              {/* Column 1: Heavy Equipment (Спецтехника) */}
-              <div>
-                <div className="flex items-center gap-2 pb-2.5 mb-3 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-amber-400">
-                  <Truck className="w-4 h-4" />
-                  <span>{language === "kz" ? "Ауыр арнайы техника" : "Спецтехника и транспорт"}</span>
-                </div>
-                <div className="space-y-1.5">
-                  {heavyCategories.map((c) => (
-                    <Link
-                      key={c.id}
-                      href={`/catalog?category=${c.id}`}
-                      onClick={() => setCatalogMegaMenuOpen(false)}
-                      className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-navy-900 border border-transparent hover:border-white/10 transition-colors"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-navy-900 group-hover:bg-amber-500/20 text-slate-300 group-hover:text-amber-400 flex items-center justify-center flex-shrink-0 transition-colors">
-                        <CategoryIcon name={c.iconName} className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-white group-hover:text-brand-400 transition-colors truncate">
-                          {language === "kz" ? c.nameKz : c.nameRu}
-                        </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5 truncate">
-                          {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы WhatsApp-та" : "цена по запросу"}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Column 2: Equipment (Оборудование) */}
-              <div>
-                <div className="flex items-center gap-2 pb-2.5 mb-3 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-blue-400">
-                  <Cog className="w-4 h-4" />
-                  <span>{language === "kz" ? "Құрылыс жабдықтары" : "Строительное оборудование"}</span>
-                </div>
-                <div className="space-y-1.5 max-h-[310px] overflow-y-auto pr-1 no-scrollbar">
-                  {equipmentCategories.map((c) => (
-                    <Link
-                      key={c.id}
-                      href={`/catalog?category=${c.id}`}
-                      onClick={() => setCatalogMegaMenuOpen(false)}
-                      className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-navy-900 border border-transparent hover:border-white/10 transition-colors"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-navy-900 group-hover:bg-blue-500/20 text-slate-300 group-hover:text-blue-400 flex items-center justify-center flex-shrink-0 transition-colors">
-                        <CategoryIcon name={c.iconName} className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-white group-hover:text-brand-400 transition-colors truncate">
-                          {language === "kz" ? c.nameKz : c.nameRu}
-                        </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5 truncate">
-                          {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы WhatsApp-та" : "цена по запросу"}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Column 3: Hand Tools (Инструмент) */}
-              <div>
-                <div className="flex items-center gap-2 pb-2.5 mb-3 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-emerald-400">
-                  <Wrench className="w-4 h-4" />
-                  <span>{language === "kz" ? "Кәсіби құралдар" : "Электро- и бензоинструмент"}</span>
-                </div>
-                <div className="space-y-1.5">
-                  {toolCategories.map((c) => (
-                    <Link
-                      key={c.id}
-                      href={`/catalog?category=${c.id}`}
-                      onClick={() => setCatalogMegaMenuOpen(false)}
-                      className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-navy-900 border border-transparent hover:border-white/10 transition-colors"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-navy-900 group-hover:bg-emerald-500/20 text-slate-300 group-hover:text-emerald-400 flex items-center justify-center flex-shrink-0 transition-colors">
-                        <CategoryIcon name={c.iconName} className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-white group-hover:text-brand-400 transition-colors truncate">
-                          {language === "kz" ? c.nameKz : c.nameRu}
-                        </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5 truncate">
-                          {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы WhatsApp-та" : "цена по запросу"}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {tiers.map((tier) => {
+                const tierCats = liveCategories.filter((c) => c.tier === tier.id);
+                return (
+                  <div key={tier.id}>
+                    <div className="flex items-center gap-2 pb-2.5 mb-3 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-brand-400">
+                      <Layers className="w-4 h-4" />
+                      <span>{language === "kz" ? tier.nameKz : tier.nameRu}</span>
+                    </div>
+                    <div className="space-y-1.5 max-h-[310px] overflow-y-auto pr-1 no-scrollbar">
+                      {tierCats.map((c) => (
+                        <Link
+                          key={c.id}
+                          href={`/catalog?category=${c.id}`}
+                          onClick={() => setCatalogMegaMenuOpen(false)}
+                          className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-navy-900 border border-transparent hover:border-white/10 transition-colors"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-navy-900 group-hover:bg-brand-500/20 text-slate-300 group-hover:text-brand-400 flex items-center justify-center flex-shrink-0 transition-colors">
+                            <CategoryIcon name={c.iconName} className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-white group-hover:text-brand-400 transition-colors truncate">
+                              {language === "kz" ? c.nameKz : c.nameRu}
+                            </div>
+                            <div className="text-[11px] text-slate-400 mt-0.5 truncate">
+                              {c.itemCount} {language === "kz" ? "модель" : "моделей"} • {language === "kz" ? "бағасы WhatsApp-та" : "цена по запросу"}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Bottom bar of Mega menu */}
@@ -424,7 +366,7 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <div className="flex items-center gap-2.5">
                   <Layers className="w-4 h-4 text-brand-500" />
-                  <span className="font-bold">{t.header.catalog} (12 {language === "kz" ? "санат" : "категорий"})</span>
+                  <span className="font-bold">{t.header.catalog} ({liveCategories.length} {language === "kz" ? "санат" : "категорий"})</span>
                 </div>
                 <ChevronDown
                   className={`w-4 h-4 text-slate-400 transition-transform ${
@@ -442,7 +384,7 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     → {language === "kz" ? "Барлық каталог (180+ позиция)" : "Весь каталог (180+ позиций)"}
                   </Link>
-                  {CATEGORIES.map((c) => (
+                  {liveCategories.map((c) => (
                     <Link
                       key={c.id}
                       href={`/catalog?category=${c.id}`}

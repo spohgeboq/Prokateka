@@ -14,7 +14,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ language }) => {
   const t = translations[language];
-  const { settings } = useData();
+  const { settings, tiers } = useData();
 
   return (
     <footer id="contacts" className="bg-navy-950 border-t border-white/10 py-12 sm:py-16 text-slate-400 text-xs sm:text-sm">
@@ -115,21 +115,13 @@ export const Footer: React.FC<FooterProps> = ({ language }) => {
               {t.footer.categoriesTitle}
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
-              <li>
-                <Link href="/catalog?tier=tool" className="hover:text-brand-400 transition-colors">
-                  {t.catalog.tabTools}
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalog?tier=equipment" className="hover:text-brand-400 transition-colors">
-                  {t.catalog.tabEquipment}
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalog?tier=heavy" className="hover:text-brand-400 transition-colors">
-                  {t.catalog.tabHeavy}
-                </Link>
-              </li>
+              {tiers.slice(0, 4).map((tier) => (
+                <li key={tier.id}>
+                  <Link href={`/catalog?tier=${tier.id}`} className="hover:text-brand-400 transition-colors">
+                    {language === "kz" ? tier.nameKz : tier.nameRu}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link href="/catalog" className="text-brand-400 hover:text-brand-300 font-semibold flex items-center gap-1">
                   <span>{language === "kz" ? "Барлық каталог" : "Весь каталог"}</span>
