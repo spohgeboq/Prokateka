@@ -1,0 +1,70 @@
+# Robots.txt for PROkateka (https://prokateka.kz)
+# Comprehensive SEO & AI Crawlers configuration
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+# OpenAI & ChatGPT Search Bots
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+# Google Search Engine
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+# Yandex Search Engine
+User-agent: Yandex
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+User-agent: YandexBot
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+# Other Search Engines
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+User-agent: Applebot
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+# Host & Sitemap specification
+Host: https://prokateka.kz
+Sitemap: https://prokateka.kz/sitemap.xml

@@ -1744,6 +1744,69 @@ export function AdminDashboard() {
                 </div>
 
                 <div className="pt-4 border-t border-white/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <span>Поисковая оптимизация (SEO) и Индексация</span>
+                    </h4>
+                    <div className="flex items-center gap-2 text-xs">
+                      <a
+                        href="/sitemap.xml"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-brand-400 hover:text-brand-300 underline"
+                      >
+                        sitemap.xml
+                      </a>
+                      <span className="text-slate-600">•</span>
+                      <a
+                        href="/robots.txt"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-brand-400 hover:text-brand-300 underline"
+                      >
+                        robots.txt
+                      </a>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-3">
+                    Вставьте коды верификации для подтверждения прав на сайт в поисковиках. Мета-теги автоматически добавятся в заголовок сайта.
+                  </p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-slate-300 mb-1">
+                        Google Search Console (Код подтверждения тега)
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.googleVerification || ""}
+                        onChange={(e) => setSettings({ ...settings, googleVerification: e.target.value })}
+                        placeholder="например: dK9_x7..."
+                        className="w-full px-4 py-2 rounded-xl bg-navy-950 border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 font-mono"
+                      />
+                      <span className="text-[10px] text-slate-500 mt-0.5 block">
+                        Значение content из тега &lt;meta name=&quot;google-site-verification&quot; content=&quot;...&quot;&gt;
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-slate-300 mb-1">
+                        Яндекс Вебмастер (Код подтверждения тега)
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.yandexVerification || ""}
+                        onChange={(e) => setSettings({ ...settings, yandexVerification: e.target.value })}
+                        placeholder="например: a1b2c3d4e5f6..."
+                        className="w-full px-4 py-2 rounded-xl bg-navy-950 border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 font-mono"
+                      />
+                      <span className="text-[10px] text-slate-500 mt-0.5 block">
+                        Значение content из тега &lt;meta name=&quot;yandex-verification&quot; content=&quot;...&quot;&gt;
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/10">
                   <h4 className="text-sm font-bold text-white mb-3">Смена Email и Пароля входа в админку</h4>
                   <div className="space-y-3">
                     <div>
@@ -1778,6 +1841,61 @@ export function AdminDashboard() {
                   </button>
                 </div>
               </form>
+
+              <div className="mt-8 pt-6 border-t border-white/10 bg-white/[0.02] p-5 rounded-2xl border">
+                <h4 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                  <span>Резервное копирование и сохранность данных (Бэкап)</span>
+                </h4>
+                <p className="text-xs text-slate-400 mb-4">
+                  Вы можете в один клик скачать полную резервную копию базы (все товары, категории, филиалы) на свой компьютер или восстановить базу из сохраненного файла.
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <a
+                    href="/api/admin/backup"
+                    download
+                    className="px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Скачать копию базы данных (.json)</span>
+                  </a>
+
+                  <label className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all">
+                    <span>Восстановить базу из файла</span>
+                    <input
+                      type="file"
+                      accept=".json"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (!confirm(`Вы действительно хотите восстановить базу из файла "${file.name}"? Это обновит каталог, категории и филиалы.`)) {
+                          e.target.value = "";
+                          return;
+                        }
+                        try {
+                          const text = await file.text();
+                          const json = JSON.parse(text);
+                          const res = await fetch("/api/admin/backup", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(json),
+                          });
+                          const data = await res.json();
+                          if (res.ok) {
+                            alert(`База данных успешно восстановлена!\nТоваров: ${data.counts?.equipment || 0}, Категорий: ${data.counts?.categories || 0}, Филиалов: ${data.counts?.branches || 0}`);
+                            window.location.reload();
+                          } else {
+                            alert("Ошибка: " + (data.error || "Не удалось восстановить базу"));
+                          }
+                        } catch (err: any) {
+                          alert("Ошибка при чтении файла JSON: " + err.message);
+                        }
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
           )}
         </div>

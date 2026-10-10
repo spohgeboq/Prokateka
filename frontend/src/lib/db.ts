@@ -62,6 +62,8 @@ export interface SiteSettings {
   companyBin: string;
   headName: string;
   youtubeVideoUrl: string;
+  googleVerification?: string;
+  yandexVerification?: string;
 }
 
 export interface AdminUser {
