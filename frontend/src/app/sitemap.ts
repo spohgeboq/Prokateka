@@ -87,13 +87,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  // Страницы фильтрации по категориям каталога (из LIVE данных)
-  const categoryRoutes: MetadataRoute.Sitemap = categoryList.map((cat) => ({
-    url: `${baseUrl}/catalog?category=${encodeURIComponent(cat.id)}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.75,
-  }));
-
-  return [...staticRoutes, ...categoryRoutes, ...equipmentRoutes];
+  return [...staticRoutes, ...equipmentRoutes];
 }
