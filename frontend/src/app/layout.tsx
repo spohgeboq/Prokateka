@@ -8,7 +8,7 @@ import { readDb } from "@/lib/db";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://prokateka.kz";
 
 export async function generateMetadata(): Promise<Metadata> {
-  let googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "";
+  let googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "XKqioAlDxGGs7zCTvM04SMDn5DiPKkOSHLyrosU6uxc";
   let yandexVerification = process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || "";
 
   try {
@@ -205,6 +205,15 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
         />
+        {/* AI Search Engine discoverability */}
+        <meta name="ai-content-description" content="PROkateka — сервис аренды и проката строительного инструмента, оборудования и спецтехники в Астане. Каталог, цены, филиалы, акции, контакты. Rental service for construction tools and heavy machinery in Astana, Kazakhstan." />
+        <meta name="subject" content="Аренда строительного инструмента и спецтехники" />
+        <meta name="classification" content="Business, Construction Equipment Rental" />
+        <meta name="coverage" content="Kazakhstan, Astana" />
+        <meta name="directory" content="submission" />
+        <meta name="rating" content="General" />
+        <meta name="revisit-after" content="3 days" />
+        <meta httpEquiv="content-language" content="ru, kk" />
       </head>
       <body className="min-h-screen bg-navy-950 text-slate-100 flex flex-col antialiased selection:bg-brand-500 selection:text-white">
         <DataProvider>

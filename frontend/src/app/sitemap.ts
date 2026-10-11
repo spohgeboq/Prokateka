@@ -59,17 +59,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Динамические страницы оборудования
+  // Read live data from admin CMS database
   let equipmentList = CATALOG_ITEMS;
+  let categoryList = CATEGORIES;
+  let branchesList: { id: string }[] = [];
+
   try {
     const db = readDb();
     if (db && db.equipment && db.equipment.length > 0) {
       equipmentList = db.equipment;
     }
+    if (db && db.categories && db.categories.length > 0) {
+      categoryList = db.categories;
+    }
+    if (db && db.branches && db.branches.length > 0) {
+      branchesList = db.branches;
+    }
   } catch (err) {
     console.error("Error reading db for sitemap:", err);
   }
 
+  // Динамические страницы каждого товара оборудования
   const equipmentRoutes: MetadataRoute.Sitemap = equipmentList.map((item) => ({
     url: `${baseUrl}/catalog/${encodeURIComponent(item.id)}`,
     lastModified: now,
@@ -77,8 +87,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  // Страницы фильтрации по категориям каталога
-  const categoryRoutes: MetadataRoute.Sitemap = CATEGORIES.map((cat) => ({
+  // Страницы фильтрации по категориям каталога (из LIVE данных)
+  const categoryRoutes: MetadataRoute.Sitemap = categoryList.map((cat) => ({
     url: `${baseUrl}/catalog?category=${encodeURIComponent(cat.id)}`,
     lastModified: now,
     changeFrequency: "weekly",
