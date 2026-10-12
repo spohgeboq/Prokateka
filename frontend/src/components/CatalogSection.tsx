@@ -8,6 +8,7 @@ import { Language, translations } from "@/data/translations";
 import { useData } from "@/context/DataContext";
 import { useCart } from "@/context/CartContext";
 import { CategoryIcon } from "./CategoryIcon";
+import { matchesEquipmentQuery } from "@/lib/searchHelper";
 import {
   Wrench,
   Cog,
@@ -51,19 +52,9 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
       // Stock filter
       if (onlyInStock && !item.inStock) return false;
 
-      // Search filter
+      // Search filter with synonyms
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
-        const matchesName =
-          item.name.toLowerCase().includes(query) ||
-          item.nameKz.toLowerCase().includes(query);
-        const matchesCat =
-          item.category.toLowerCase().includes(query) ||
-          item.categoryKz.toLowerCase().includes(query);
-        const matchesDesc =
-          item.description.toLowerCase().includes(query) ||
-          item.descriptionKz.toLowerCase().includes(query);
-        if (!matchesName && !matchesCat && !matchesDesc) return false;
+        if (!matchesEquipmentQuery(item, searchQuery)) return false;
       }
 
       return true;

@@ -6,10 +6,12 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { FaqSection } from "@/components/FaqSection";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { CATALOG_ITEMS, EquipmentItem, EquipmentTier, PowerType } from "@/data/catalog";
 import { CATEGORIES, CategoryDefinition } from "@/data/categories";
 import { Language, translations } from "@/data/translations";
+import { matchesEquipmentQuery } from "@/lib/searchHelper";
 import { useData } from "@/context/DataContext";
 import { useCart } from "@/context/CartContext";
 import {
@@ -184,25 +186,9 @@ function CatalogMain() {
       // In stock
       if (onlyInStock && !item.inStock) return false;
 
-      // Search
+      // Search with synonyms
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
-        const matchesName =
-          item.name.toLowerCase().includes(query) ||
-          item.nameKz.toLowerCase().includes(query);
-        const matchesCat =
-          item.category.toLowerCase().includes(query) ||
-          item.categoryKz.toLowerCase().includes(query);
-        const matchesDesc =
-          item.description.toLowerCase().includes(query) ||
-          item.descriptionKz.toLowerCase().includes(query);
-        const matchesSpecs = item.specs?.some(
-          (s) =>
-            s.key.toLowerCase().includes(query) ||
-            s.value.toLowerCase().includes(query) ||
-            s.keyKz.toLowerCase().includes(query)
-        );
-        if (!matchesName && !matchesCat && !matchesDesc && !matchesSpecs) return false;
+        if (!matchesEquipmentQuery(item, searchQuery)) return false;
       }
 
       return true;
@@ -840,6 +826,8 @@ function CatalogMain() {
           </div>
         </div>
       </main>
+
+      <FaqSection language={language} />
 
       <Footer language={language} />
 

@@ -11,6 +11,7 @@ import { WhatsAppExplainer } from "@/components/WhatsAppExplainer";
 import { Features } from "@/components/Features";
 import { HowItWorks } from "@/components/HowItWorks";
 import { BranchesSection } from "@/components/BranchesSection";
+import { FaqSection } from "@/components/FaqSection";
 import { PromoBanner } from "@/components/PromoBanner";
 import { Footer } from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
@@ -77,7 +78,10 @@ export default function HomePage() {
         {/* 6. How It Works */}
         <HowItWorks language={language} />
 
-        {/* 7. Branches & Pickup Locations */}
+        {/* 7. FAQ & Search Queries Knowledge Hub */}
+        <FaqSection language={language} />
+
+        {/* 8. Branches & Pickup Locations */}
         <BranchesSection language={language} />
       </main>
 
